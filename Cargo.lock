@@ -2993,6 +2993,7 @@ dependencies = [
  "path-slash",
  "pretty_assertions",
  "proptest",
+ "rand 0.8.5",
  "rayon",
  "regex",
  "reqwest",

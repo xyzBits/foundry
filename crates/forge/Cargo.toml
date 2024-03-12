@@ -83,6 +83,7 @@ thiserror = "1"
 tokio = { version = "1", features = ["time"] }
 watchexec = "2.3.2"
 evm-disassembler.workspace = true
+rand.workspace = true
 
 # doc server
 axum = { workspace = true, features = ["ws"] }

@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate tracing;
 
+use alloy_primitives::U256;
 use foundry_compilers::ProjectCompileOutput;
 use foundry_config::{
     validate_profiles, Config, FuzzConfig, InlineConfig, InlineConfigError, InlineConfigParser,
@@ -164,14 +165,11 @@ impl TestOptions {
             ..Default::default()
         };
 
-        if let Some(seed) = &self.fuzz.seed {
-            trace!(target: "forge::test", %seed, "building deterministic fuzzer");
-            let rng = TestRng::from_seed(RngAlgorithm::ChaCha, &seed.to_be_bytes::<32>());
-            TestRunner::new_with_rng(config, rng)
-        } else {
-            trace!(target: "forge::test", "building stochastic fuzzer");
-            TestRunner::new(config)
-        }
+        let seed =
+            self.fuzz.seed.map_or(rand::random::<[u8; 32]>(), |seed| seed.to_be_bytes::<32>());
+        trace!(target: "forge::test", "building fuzzer: {:?}", &seed);
+        let rng = TestRng::from_seed(RngAlgorithm::ChaCha, &seed);
+        TestRunner::new_with_rng(config, rng)
     }
 }
 
