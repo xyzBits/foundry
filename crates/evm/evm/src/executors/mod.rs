@@ -21,7 +21,7 @@ use foundry_evm_core::{
     },
     debug::DebugArena,
     decode::RevertDecoder,
-    utils::StateChangeset,
+    utils::{new_evm_with_inspector, StateChangeset},
 };
 use foundry_evm_coverage::HitMaps;
 use foundry_evm_traces::CallTraceArena;
@@ -32,6 +32,7 @@ use revm::{
         BlockEnv, Bytecode, Env, EnvWithHandlerCfg, ExecutionResult, Output, ResultAndState,
         SpecId, TxEnv, TxKind,
     },
+    Evm,
 };
 use std::{borrow::Cow, collections::HashMap};
 
@@ -67,16 +68,10 @@ sol! {
 /// - `setup`: a special case of `transact`, used to set up the environment for a test
 #[derive(Clone, Debug)]
 pub struct Executor {
-    /// The underlying `revm::Database` that contains the EVM storage.
-    // Note: We do not store an EVM here, since we are really
-    // only interested in the database. REVM's `EVM` is a thin
-    // wrapper around spawning a new EVM on every call anyway,
-    // so the performance difference should be negligible.
-    pub backend: Backend,
+    /// The cached EVM. Contains the backend and the inspector.
+    evm: Evm<'static, InspectorStack, Backend>,
     /// The EVM environment.
-    pub env: EnvWithHandlerCfg,
-    /// The Revm inspector stack.
-    pub inspector: InspectorStack,
+    env: EnvWithHandlerCfg,
     /// The gas limit for calls and deployments. This is different from the gas limit imposed by
     /// the passed in environment, as those limits are used by the EVM for certain opcodes like
     /// `gaslimit`.
@@ -99,7 +94,7 @@ impl Executor {
         gas_limit: u64,
     ) -> Self {
         // Need to create a non-empty contract on the cheatcodes address so `extcodesize` checks
-        // does not fail
+        // do not fail.
         backend.insert_account_info(
             CHEATCODE_ADDRESS,
             revm::primitives::AccountInfo {
@@ -111,12 +106,44 @@ impl Executor {
             },
         );
 
-        Self { backend, env, inspector, gas_limit }
+        let evm = new_evm_with_inspector(backend, env, inspector);
+
+        Self { evm, env, gas_limit }
     }
 
-    /// Returns the spec ID of the executor.
+    /// Returns a reference to the EVM backend.
+    pub fn backend(&self) -> &Backend {
+        &self.backend
+    }
+
+    /// Returns a mutable reference to the EVM backend.
+    pub fn backend_mut(&mut self) -> &mut Backend {
+        &mut self.backend
+    }
+
+    /// Returns a reference to the EVM environment.
+    pub fn env(&self) -> &EnvWithHandlerCfg {
+        &self.env
+    }
+
+    /// Returns a mutable reference to the EVM environment.
+    pub fn env_mut(&mut self) -> &mut EnvWithHandlerCfg {
+        &mut self.env
+    }
+
+    /// Returns a reference to the EVM inspector.
+    pub fn inspector(&self) -> &InspectorStack {
+        &self.evm.context.external
+    }
+
+    /// Returns a mutable reference to the EVM inspector.
+    pub fn inspector_mut(&mut self) -> &mut InspectorStack {
+        &mut self.evm.context.external
+    }
+
+    /// Returns the EVM spec ID.
     pub fn spec_id(&self) -> SpecId {
-        self.env.handler_cfg.spec_id
+        self.env().handler_cfg.spec_id
     }
 
     /// Creates the default CREATE2 Contract Deployer for local tests and scripts.
