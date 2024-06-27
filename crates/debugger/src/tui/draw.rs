@@ -196,6 +196,7 @@ impl DebuggerContext<'_> {
         let (text_output, source_name) = self.src_text(area);
         let call_kind_text = match self.call_kind() {
             CallKind::Create | CallKind::Create2 => "Contract creation",
+            CallKind::EOFCreate => "Contract creation (EOF)",
             CallKind::Call => "Contract call",
             CallKind::StaticCall => "Contract staticcall",
             CallKind::CallCode => "Contract callcode",

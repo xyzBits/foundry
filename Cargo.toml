@@ -256,6 +256,6 @@ soldeer = "0.2.15"
 
 [patch.crates-io]
 foundry-compilers = { git = "https://github.com/foundry-rs/compilers.git", rev = "d9e7306"}
-revm-primitives = { git = "https://github.com/bluealloy/revm.git", rev = "7e8b8c6e" }
-revm = { git = "https://github.com/bluealloy/revm.git", rev = "7e8b8c6e" }
-revm-inspectors = { git = "https://github.com/paradigmxyz/revm-inspectors.git", rev = "36c1b53" }
+revm-primitives = { git = "https://github.com/bluealloy/revm.git", rev = "3eb1b1a6" }
+revm = { git = "https://github.com/bluealloy/revm.git", rev = "3eb1b1a6" }
+revm-inspectors = { git = "https://github.com/paradigmxyz/revm-inspectors.git", rev = "33cf74a" }

@@ -193,7 +193,7 @@ pub async fn render_trace(
             CallKind::StaticCall => " [staticcall]",
             CallKind::CallCode => " [callcode]",
             CallKind::DelegateCall => " [delegatecall]",
-            CallKind::Create | CallKind::Create2 => unreachable!(),
+            CallKind::Create | CallKind::Create2 | CallKind::EOFCreate => unreachable!(),
             CallKind::AuthCall => " [authcall]",
         };
 
