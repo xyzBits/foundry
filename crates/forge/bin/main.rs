@@ -33,11 +33,11 @@ fn run() -> Result<()> {
     utils::subscriber();
     utils::enable_paint();
 
-    let opts = Forge::parse();
-    opts.shell.shell().set();
-    init_execution_context(&opts.cmd);
+    let args = Forge::parse();
+    args.shell.shell().set();
+    init_execution_context(&args.cmd);
 
-    match opts.cmd {
+    match args.cmd {
         ForgeSubcommand::Test(cmd) => {
             if cmd.is_watch() {
                 utils::block_on(watch::watch_test(cmd))

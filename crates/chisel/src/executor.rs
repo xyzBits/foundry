@@ -152,7 +152,7 @@ impl SessionSource {
                     Ok((_, res)) => (res, Some(err)),
                     Err(_) => {
                         if self.config.foundry_config.verbosity >= 3 {
-                            eprintln!("Could not inspect: {err}");
+                            sh_eprintln!("Could not inspect: {err}");
                         }
                         return Ok((true, None))
                     }
@@ -180,7 +180,7 @@ impl SessionSource {
 
             // we were unable to check the event
             if self.config.foundry_config.verbosity >= 3 {
-                eprintln!("Failed eval: {err}");
+                sh_eprintln!("Failed eval: {err}");
             }
 
             debug!(%err, %input, "failed abi encode input");
@@ -194,9 +194,9 @@ impl SessionSource {
             }
             let decoded_logs = decode_console_logs(&res.logs);
             if !decoded_logs.is_empty() {
-                println!("{}", "Logs:".green());
+                sh_println!("{}", "Logs:".green());
                 for log in decoded_logs {
-                    println!("  {log}");
+                    sh_println!("  {log}");
                 }
             }
 
@@ -1682,12 +1682,12 @@ mod tests {
                 match solc {
                     Ok((v, solc)) => {
                         // successfully installed
-                        eprintln!("found installed Solc v{v} @ {}", solc.solc.display());
+                        sh_eprintln!("found installed Solc v{v} @ {}", solc.solc.display());
                         break
                     }
                     Err(e) => {
                         // try reinstalling
-                        eprintln!("error while trying to re-install Solc v{version}: {e}");
+                        sh_eprintln!("error while trying to re-install Solc v{version}: {e}");
                         let solc = Solc::blocking_install(&version.parse().unwrap());
                         if solc.map_err(SolcError::from).is_ok() {
                             *is_preinstalled = true;
@@ -1726,7 +1726,7 @@ mod tests {
 
         if let Err(e) = s.parse() {
             for err in e {
-                eprintln!("{}:{}: {}", err.loc.start(), err.loc.end(), err.message);
+                sh_eprintln!("{}:{}: {}", err.loc.start(), err.loc.end(), err.message);
             }
             let source = s.to_repl_source();
             panic!("could not parse input:\n{source}")

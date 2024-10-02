@@ -915,7 +915,7 @@ impl NodeConfig {
             return;
         }
 
-        println!("{}", self.as_string(fork))
+        sh_println!("{}", self.as_string(fork))
     }
 
     /// Returns the path where the cache file should be stored

@@ -63,9 +63,9 @@ impl InitArgs {
             let template = if template.contains("://") {
                 template.clone()
             } else {
-                "https://github.com/".to_string() + &template
+                "https://github.com/".to_string() + template
             };
-            sh_status!("Initializing" => "{} from {template}", root_rel.display())?;
+            sh_status!("Initializing" => "{} from {template}", root_rel.display());
             // initialize the git repository
             git.init()?;
 
@@ -99,7 +99,7 @@ impl InitArgs {
                     );
                 }
 
-                sh_note!("Target directory is not empty, but `--force` was specified")?;
+                sh_println!("Target directory is not empty, but `--force` was specified");
             }
 
             // ensure git status is clean before generating anything
@@ -107,7 +107,7 @@ impl InitArgs {
                 git.ensure_clean()?;
             }
 
-            sh_status!("Initializing" => "{}...", root_rel.display())?;
+            sh_status!("Initializing" => "{}...", root_rel.display());
 
             // make the dirs
             let src = root.join("src");
@@ -148,7 +148,7 @@ impl InitArgs {
             // install forge-std
             if !offline {
                 if root.join("lib/forge-std").exists() {
-                    sh_status!("Skipping" => "forge-std install")?;
+                    sh_status!("Skipping" => "forge-std install");
                     self.opts.install(&mut config, vec![])?;
                 } else {
                     let dep = "https://github.com/foundry-rs/forge-std".parse()?;
@@ -169,7 +169,7 @@ impl InitArgs {
         if root_rel != Path::new(".") {
             write!(msg, " in {}", root_rel.display()).unwrap();
         }
-        sh_status!("Created" => "{msg}")?;
+        sh_status!("Created" => "{msg}");
 
         Ok(())
     }

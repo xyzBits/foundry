@@ -2,7 +2,7 @@
 
 use anvil::cmd::NodeArgs;
 use clap::{CommandFactory, Parser, Subcommand};
-use foundry_cli::utils;
+use foundry_cli::{opts::ShellOpts, utils};
 
 #[cfg(all(feature = "jemalloc", unix))]
 #[global_allocator]
@@ -17,6 +17,9 @@ pub struct Anvil {
 
     #[command(subcommand)]
     pub cmd: Option<AnvilSubcommand>,
+
+    #[clap(flatten)]
+    pub shell: ShellOpts,
 }
 
 #[derive(Subcommand)]
@@ -37,6 +40,7 @@ fn main() -> eyre::Result<()> {
     utils::load_dotenv();
 
     let mut args = Anvil::parse();
+    args.shell.shell().set();
     args.node.evm_opts.resolve_rpc_alias();
 
     if let Some(cmd) = &args.cmd {

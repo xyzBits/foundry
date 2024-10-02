@@ -265,8 +265,6 @@ async fn test_sub_new_heads_fast() {
         block_numbers.push(block_number);
     }
 
-    println!("Collected {} blocks", block_numbers.len());
-
     let numbers = (1..=num).collect::<Vec<_>>();
     assert_eq!(block_numbers, numbers);
 }

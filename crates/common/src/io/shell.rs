@@ -359,7 +359,17 @@ impl Shell {
     #[inline]
     pub fn error(&mut self, message: impl fmt::Display) -> Result<()> {
         self.maybe_err_erase_line();
-        self.output.message_stderr(&"error", Some(&message), &ERROR, false)
+        self.output.message_stderr(&"Error", Some(&message), &ERROR, false)
+    }
+
+    /// Prints a green 'success' message. Use the [`sh_success!`] macro instead.
+    #[inline]
+    pub fn success(&mut self, message: impl fmt::Display) -> Result<()> {
+        match self.verbosity {
+            Verbosity::Quiet => Ok(()),
+            _ => self.print(&"Success", Some(&message), &SUCCESS, false),
+        }
+        self.output.message_stdout(&"Success", Some(&message), &SUCCESS, false)
     }
 
     /// Prints an amber 'warning' message. Use the [`sh_warn!`] macro instead.
@@ -367,14 +377,14 @@ impl Shell {
     pub fn warn(&mut self, message: impl fmt::Display) -> Result<()> {
         match self.verbosity {
             Verbosity::Quiet => Ok(()),
-            _ => self.print(&"warning", Some(&message), &WARN, false),
+            _ => self.print(&"Warning", Some(&message), &WARN, false),
         }
     }
 
     /// Prints a cyan 'note' message. Use the [`sh_note!`] macro instead.
     #[inline]
     pub fn note(&mut self, message: impl fmt::Display) -> Result<()> {
-        self.print(&"note", Some(&message), &NOTE, false)
+        self.print(&"Note", Some(&message), &NOTE, false)
     }
 
     /// Write a styled fragment.
@@ -413,22 +423,6 @@ impl Shell {
         }
     }
 
-    /// Prints a message to stderr and translates ANSI escape code into console colors.
-    #[inline]
-    pub fn print_ansi_stderr(&mut self, message: &[u8]) -> Result<()> {
-        self.maybe_err_erase_line();
-        self.err().write_all(message)?;
-        Ok(())
-    }
-
-    /// Prints a message to stdout and translates ANSI escape code into console colors.
-    #[inline]
-    pub fn print_ansi_stdout(&mut self, message: &[u8]) -> Result<()> {
-        self.maybe_err_erase_line();
-        self.out().write_all(message)?;
-        Ok(())
-    }
-
     /// Serializes an object to JSON and prints it to `stdout`.
     #[inline]
     pub fn print_json(&mut self, obj: &impl serde::Serialize) -> Result<()> {
@@ -459,9 +453,9 @@ impl Shell {
 }
 
 impl ShellOut {
-    /// Prints out a message with a status. The status comes first, and is bold plus the given
-    /// color. The status can be justified, in which case the max width that will right align is
-    /// 12 chars.
+    /// Prints out a message with a status to stderr. The status comes first, and is bold plus the
+    /// given color. The status can be justified, in which case the max width that will right
+    /// align is 12 chars.
     fn message_stderr(
         &mut self,
         status: &dyn fmt::Display,
@@ -469,21 +463,23 @@ impl ShellOut {
         style: &Style,
         justified: bool,
     ) -> Result<()> {
-        let style = style.render();
-        let bold = (anstyle::Style::new() | anstyle::Effects::BOLD).render();
-        let reset = anstyle::Reset.render();
-
-        let mut buffer = Vec::new();
-        if justified {
-            write!(&mut buffer, "{style}{status:>12}{reset}")?;
-        } else {
-            write!(&mut buffer, "{style}{status}{reset}{bold}:{reset}")?;
-        }
-        match message {
-            Some(message) => writeln!(buffer, " {message}")?,
-            None => write!(buffer, " ")?,
-        }
+        let buffer = Self::format_message(status, message, style, justified)?;
         self.stderr().write_all(&buffer)?;
+        Ok(())
+    }
+
+    /// Prints out a message with a status to stdout. The status comes first, and is bold plus the
+    /// given color. The status can be justified, in which case the max width that will right
+    /// align is 12 chars.
+    fn message_stdout(
+        &mut self,
+        status: &dyn fmt::Display,
+        message: Option<&dyn fmt::Display>,
+        style: &Style,
+        justified: bool,
+    ) -> Result<()> {
+        let buffer = Self::format_message(status, message, style, justified)?;
+        self.stdout().write_all(&buffer)?;
         Ok(())
     }
 
@@ -526,6 +522,31 @@ impl ShellOut {
             Self::Empty(e) => e,
         }
     }
+
+    /// Formats a message with a status and optional message.
+    fn format_message(
+        status: &dyn fmt::Display,
+        message: Option<&dyn fmt::Display>,
+        style: &Style,
+        justified: bool,
+    ) -> Result<Vec<u8>> {
+        let style = style.render();
+        let bold = (anstyle::Style::new() | anstyle::Effects::BOLD).render();
+        let reset = anstyle::Reset.render();
+
+        let mut buffer = Vec::new();
+        if justified {
+            write!(&mut buffer, "{style}{status:>12}{reset}")?;
+        } else {
+            write!(&mut buffer, "{style}{status}{reset}{bold}:{reset}")?;
+        }
+        match message {
+            Some(message) => writeln!(buffer, " {message}")?,
+            None => write!(buffer, " ")?,
+        }
+
+        Ok(buffer)
+    }
 }
 
 impl ColorChoice {
@@ -546,31 +567,4 @@ fn supports_color(choice: anstream::ColorChoice) -> bool {
         anstream::ColorChoice::Auto => true,
         anstream::ColorChoice::Never => false,
     }
-}
-
-/// Deprecated
-///
-/// Get a mutable reference to the global shell.
-pub fn with_shell<T>(callback: impl FnOnce(&mut Shell) -> T) -> T {
-    let mut shell = Shell::get();
-    callback(&mut shell)
-}
-
-/// Deprecated
-///
-/// Prints the given message to the shell.
-pub fn println(msg: impl fmt::Display) -> Result<()> {
-    with_shell(|shell| if !shell.verbosity.is_quiet() { shell.print_out(msg) } else { Ok(()) })
-}
-
-/// Deprecated
-///
-/// Prints the given message serialized to JSON to the shell.
-pub fn print_json<T: serde::Serialize>(obj: &T) -> Result<()> {
-    with_shell(|shell| shell.print_json(obj))
-}
-
-/// Prints the given message to the shell
-pub fn eprintln(msg: impl fmt::Display) -> Result<()> {
-    with_shell(|shell| if !shell.verbosity.is_quiet() { shell.print_err(msg) } else { Ok(()) })
 }

@@ -191,7 +191,7 @@ mod tests {
         let mut first_abi = None;
         let mut failed = Vec::new();
         for (i, &key) in ETHERSCAN_MAINNET_KEYS.iter().enumerate() {
-            eprintln!("trying key {i} ({key})");
+            sh_eprintln!("trying key {i} ({key})");
 
             let client = foundry_block_explorers::Client::builder()
                 .chain(Chain::mainnet())
@@ -201,7 +201,7 @@ mod tests {
                 .unwrap();
 
             let mut fail = |e: &str| {
-                eprintln!("key {i} ({key}) failed: {e}");
+                sh_eprintln!("key {i} ({key}) failed: {e}");
                 failed.push(key);
             };
 

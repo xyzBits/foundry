@@ -106,7 +106,7 @@ impl BindArgs {
         }
 
         if self.ethers {
-            eprintln!(
+            sh_eprintln!(
                 "Warning: `--ethers` bindings are deprecated and will be removed in the future. \
                  Consider using `--alloy` (default) instead."
             );
@@ -118,7 +118,7 @@ impl BindArgs {
 
         if bindings_root.exists() {
             if !self.overwrite {
-                println!("Bindings found. Checking for consistency.");
+                sh_println!("Bindings found. Checking for consistency.");
                 return self.check_existing_bindings(&artifacts, &bindings_root);
             }
 
@@ -128,7 +128,7 @@ impl BindArgs {
 
         self.generate_bindings(&artifacts, &bindings_root)?;
 
-        println!("Bindings have been generated to {}", bindings_root.display());
+        sh_println!("Bindings have been generated to {}", bindings_root.display());
         Ok(())
     }
 
@@ -274,7 +274,7 @@ impl BindArgs {
 
     fn check_ethers(&self, artifacts: &Path, bindings_root: &Path) -> Result<()> {
         let bindings = self.get_multi(artifacts)?.build()?;
-        println!("Checking bindings for {} contracts.", bindings.len());
+        sh_println!("Checking bindings for {} contracts.", bindings.len());
         if !self.module {
             bindings
                 .ensure_consistent_crate(
@@ -294,14 +294,14 @@ impl BindArgs {
         } else {
             bindings.ensure_consistent_module(bindings_root, self.single_file)?;
         }
-        println!("OK.");
+        sh_println!("OK.");
         Ok(())
     }
 
     fn check_alloy(&self, artifacts: &Path, bindings_root: &Path) -> Result<()> {
         let mut bindings = self.get_solmacrogen(artifacts)?;
         bindings.generate_bindings()?;
-        println!("Checking bindings for {} contracts", bindings.instances.len());
+        sh_println!("Checking bindings for {} contracts", bindings.instances.len());
         bindings.check_consistency(
             &self.crate_name,
             &self.crate_version,
@@ -311,7 +311,7 @@ impl BindArgs {
             self.module,
             self.alloy_version.clone(),
         )?;
-        println!("OK.");
+        sh_println!("OK.");
         Ok(())
     }
 
@@ -326,7 +326,7 @@ impl BindArgs {
 
     fn generate_ethers(&self, artifacts: &Path, bindings_root: &Path) -> Result<()> {
         let mut bindings = self.get_multi(artifacts)?.build()?;
-        println!("Generating bindings for {} contracts", bindings.len());
+        sh_println!("Generating bindings for {} contracts", bindings.len());
         if !self.module {
             trace!(single_file = self.single_file, "generating crate");
             if !self.skip_extra_derives {
@@ -346,7 +346,7 @@ impl BindArgs {
 
     fn generate_alloy(&self, artifacts: &Path, bindings_root: &Path) -> Result<()> {
         let mut solmacrogen = self.get_solmacrogen(artifacts)?;
-        println!("Generating bindings for {} contracts", solmacrogen.instances.len());
+        sh_println!("Generating bindings for {} contracts", solmacrogen.instances.len());
 
         if !self.module {
             trace!(single_file = self.single_file, "generating crate");

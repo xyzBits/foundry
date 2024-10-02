@@ -57,7 +57,7 @@ impl ConfigArgs {
             config.to_string_pretty()?
         };
 
-        println!("{s}");
+        sh_println!("{s}");
         Ok(())
     }
 }

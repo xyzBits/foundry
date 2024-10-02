@@ -233,7 +233,7 @@ impl ScriptRunner {
                 Ok(DeployResult { address, raw }) => (address, raw),
                 Err(EvmError::Execution(err)) => {
                     let ExecutionErr { raw, reason } = *err;
-                    println!("{}", format!("\nFailed with `{reason}`:\n").red());
+                    sh_println!("{}", format!("\nFailed with `{reason}`:\n").red());
                     (Address::ZERO, raw)
                 }
                 Err(e) => eyre::bail!("Failed deploying contract: {e:?}"),

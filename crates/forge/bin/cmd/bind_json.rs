@@ -442,7 +442,7 @@ impl ResolvedState {
         }
         fs::write(&self.target_path, &result)?;
 
-        println!("Bindings written to {}", self.target_path.display());
+        sh_println!("Bindings written to {}", self.target_path.display());
 
         Ok(result)
     }

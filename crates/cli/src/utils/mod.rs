@@ -3,7 +3,10 @@ use alloy_primitives::U256;
 use alloy_provider::{network::AnyNetwork, Provider};
 use alloy_transport::Transport;
 use eyre::{ContextCompat, Result};
-use foundry_common::provider::{ProviderBuilder, RetryProvider};
+use foundry_common::{
+    provider::{ProviderBuilder, RetryProvider},
+    shell,
+};
 use foundry_config::{Chain, Config};
 use std::{
     ffi::OsStr,
@@ -258,14 +261,13 @@ impl CommandUtils for Command {
 #[derive(Clone, Copy, Debug)]
 pub struct Git<'a> {
     pub root: &'a Path,
-    pub quiet: bool,
     pub shallow: bool,
 }
 
 impl<'a> Git<'a> {
     #[inline]
     pub fn new(root: &'a Path) -> Self {
-        Self { root, quiet: false, shallow: false }
+        Self { root, shallow: false }
     }
 
     #[inline]
@@ -336,11 +338,6 @@ impl<'a> Git<'a> {
     #[inline]
     pub fn root(self, root: &Path) -> Git<'_> {
         Git { root, ..self }
-    }
-
-    #[inline]
-    pub fn quiet(self, quiet: bool) -> Self {
-        Self { quiet, ..self }
     }
 
     /// True to perform shallow clones
@@ -561,7 +558,7 @@ https://github.com/foundry-rs/foundry/issues/new/choose"
 
     // don't set this in cmd() because it's not wanted for all commands
     fn stderr(self) -> Stdio {
-        if self.quiet {
+        if shell::verbosity().is_quiet() {
             Stdio::piped()
         } else {
             Stdio::inherit()

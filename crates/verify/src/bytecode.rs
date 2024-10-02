@@ -145,7 +145,7 @@ impl VerifyBytecodeArgs {
         }
 
         if !self.json {
-            println!(
+            sh_println!(
                 "Verifying bytecode for contract {} at address {}",
                 self.contract.name.clone().green(),
                 self.address.green()
@@ -215,7 +215,7 @@ impl VerifyBytecodeArgs {
 
         if maybe_predeploy {
             if !self.json {
-                println!(
+                sh_println!(
                     "{}",
                     format!("Attempting to verify predeployed contract at {:?}. Ignoring creation code verification.", self.address)
                         .yellow()
@@ -299,7 +299,7 @@ impl VerifyBytecodeArgs {
             );
 
             if self.json {
-                println!("{}", serde_json::to_string(&json_results)?);
+                sh_println!("{}", serde_json::to_string(&json_results)?);
             }
 
             return Ok(());
@@ -395,7 +395,7 @@ impl VerifyBytecodeArgs {
                     &config,
                 );
                 if self.json {
-                    println!("{}", serde_json::to_string(&json_results)?);
+                    sh_println!("{}", serde_json::to_string(&json_results)?);
                 }
                 return Ok(());
             }
@@ -498,7 +498,7 @@ impl VerifyBytecodeArgs {
         }
 
         if self.json {
-            println!("{}", serde_json::to_string(&json_results)?);
+            sh_println!("{}", serde_json::to_string(&json_results)?);
         }
         Ok(())
     }

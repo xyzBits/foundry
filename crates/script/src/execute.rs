@@ -19,7 +19,7 @@ use foundry_cli::utils::{ensure_clean_constructor, needs_setup};
 use foundry_common::{
     fmt::{format_token, format_token_raw},
     provider::get_http_provider,
-    shell, ContractsByArtifact,
+    ContractsByArtifact,
 };
 use foundry_config::{Config, NamedChain};
 use foundry_debugger::Debugger;
@@ -195,7 +195,7 @@ impl PreExecutionState {
                         let sender = tx.transaction.from().expect("no sender");
                         if let Some(ns) = new_sender {
                             if sender != ns {
-                                shell::println("You have more than one deployer who could predeploy libraries. Using `--sender` instead.")?;
+                                sh_println!("You have more than one deployer who could predeploy libraries. Using `--sender` instead.");
                                 return Ok(None);
                             }
                         } else if sender != self.script_config.evm_opts.sender {
@@ -244,17 +244,14 @@ impl RpcData {
         let chains = join_all(chain_ids).await;
         let iter = chains.iter().flatten().map(|c| (c.supports_shanghai(), c));
         if iter.clone().any(|(s, _)| !s) {
-            let msg = format!(
-                "\
-EIP-3855 is not supported in one or more of the RPCs used.
-Unsupported Chain IDs: {}.
-Contracts deployed with a Solidity version equal or higher than 0.8.20 might not work properly.
-For more information, please see https://eips.ethereum.org/EIPS/eip-3855",
-                iter.filter(|(supported, _)| !supported)
-                    .map(|(_, chain)| *chain as u64)
-                    .format(", ")
-            );
-            shell::println(msg.yellow())?;
+            sh_println!(                "\
+            EIP-3855 is not supported in one or more of the RPCs used.
+            Unsupported Chain IDs: {}.
+            Contracts deployed with a Solidity version equal or higher than 0.8.20 might not work properly.
+            For more information, please see https://eips.ethereum.org/EIPS/eip-3855",
+                            iter.filter(|(supported, _)| !supported)
+                                .map(|(_, chain)| *chain as u64)
+                                .format(", ")).yellow();
         }
         Ok(())
     }
@@ -300,10 +297,8 @@ impl ExecutedState {
         let rpc_data = RpcData::from_transactions(&txs);
 
         if rpc_data.is_multi_chain() {
-            shell::eprintln(format!(
-                "{}",
-                "Multi chain deployment is still under development. Use with caution.".yellow()
-            ))?;
+            sh_eprintln!("Multi chain deployment is still under development. Use with caution.")
+                .yellow();
             if !self.build_data.libraries.is_empty() {
                 eyre::bail!(
                     "Multi chain deployment does not support library linking at the moment."
@@ -381,7 +376,7 @@ impl ExecutedState {
                 }
             }
             Err(_) => {
-                shell::println(format!("{returned:?}"))?;
+                sh_println!("{returned:?}");
             }
         }
 
@@ -399,7 +394,7 @@ impl PreSimulationState {
             result,
         };
         let json = serde_json::to_string(&json_result)?;
-        shell::println(json)?;
+        print!("{json}");
 
         if !self.execution_result.success {
             return Err(eyre::eyre!(
@@ -422,7 +417,7 @@ impl PreSimulationState {
                 warn!(verbosity, "no traces");
             }
 
-            shell::println("Traces:")?;
+            sh_println!("Traces:");
             for (kind, trace) in &result.traces {
                 let should_include = match kind {
                     TraceKind::Setup => verbosity >= 5,
@@ -433,22 +428,22 @@ impl PreSimulationState {
                 if should_include {
                     let mut trace = trace.clone();
                     decode_trace_arena(&mut trace, decoder).await?;
-                    shell::println(render_trace_arena(&trace))?;
+                    sh_println!("{}", render_trace_arena(&trace));
                 }
             }
-            shell::println(String::new())?;
+            sh_println!("{}", String::new());
         }
 
         if result.success {
-            shell::println(format!("{}", "Script ran successfully.".green()))?;
+            sh_println!("Script ran successfully.").green();
         }
 
         if self.script_config.evm_opts.fork_url.is_none() {
-            shell::println(format!("Gas used: {}", result.gas_used))?;
+            sh_println!("Gas used: {}", result.gas_used);
         }
 
         if result.success && !result.returned.is_empty() {
-            shell::println("\n== Return ==")?;
+            sh_println!("\n== Return ==");
             match func.abi_decode_output(&result.returned, false) {
                 Ok(decoded) => {
                     for (index, (token, output)) in decoded.iter().zip(&func.outputs).enumerate() {
@@ -463,24 +458,24 @@ impl PreSimulationState {
                         } else {
                             index.to_string()
                         };
-                        shell::println(format!(
+                        sh_println!(
                             "{}: {internal_type} {}",
                             label.trim_end(),
                             format_token(token)
-                        ))?;
+                        );
                     }
                 }
                 Err(_) => {
-                    shell::println(format!("{:x?}", (&result.returned)))?;
+                    sh_println!("{:x?}", (&result.returned));
                 }
             }
         }
 
         let console_logs = decode_console_logs(&result.logs);
         if !console_logs.is_empty() {
-            shell::println("\n== Logs ==")?;
+            sh_println!("\n== Logs ==");
             for log in console_logs {
-                shell::println(format!("  {log}"))?;
+                sh_println!("  {log}");
             }
         }
 

@@ -225,18 +225,11 @@ async fn can_correctly_estimate_blob_gas_with_recommended_fillers() {
     // Send the transaction and wait for the broadcast.
     let pending_tx = provider.send_transaction(tx).await.unwrap();
 
-    println!("Pending transaction... {}", pending_tx.tx_hash());
-
     // Wait for the transaction to be included and get the receipt.
     let receipt = pending_tx.get_receipt().await.unwrap();
 
     // Grab the processed transaction.
     let tx = provider.get_transaction_by_hash(receipt.transaction_hash).await.unwrap().unwrap();
-
-    println!(
-        "Transaction included in block {}",
-        receipt.block_number.expect("Failed to get block number")
-    );
 
     assert!(tx.max_fee_per_blob_gas.unwrap() >= BLOB_TX_MIN_BLOB_GASPRICE);
     assert_eq!(receipt.from, alice);
@@ -270,18 +263,11 @@ async fn can_correctly_estimate_blob_gas_with_recommended_fillers_with_signer() 
     // Send the transaction and wait for the broadcast.
     let pending_tx = provider.send_transaction(tx).await.unwrap();
 
-    println!("Pending transaction... {}", pending_tx.tx_hash());
-
     // Wait for the transaction to be included and get the receipt.
     let receipt = pending_tx.get_receipt().await.unwrap();
 
     // Grab the processed transaction.
     let tx = provider.get_transaction_by_hash(receipt.transaction_hash).await.unwrap().unwrap();
-
-    println!(
-        "Transaction included in block {}",
-        receipt.block_number.expect("Failed to get block number")
-    );
 
     assert!(tx.max_fee_per_blob_gas.unwrap() >= BLOB_TX_MIN_BLOB_GASPRICE);
     assert_eq!(receipt.from, alice);

@@ -50,7 +50,7 @@ impl GasReport {
                 // list. This is addressed this way because getting a report you don't expect is
                 // preferable than not getting one you expect. A warning is printed to stderr
                 // indicating the "double listing".
-                eprintln!(
+                sh_eprintln!(
                     "{}: {} is listed in both 'gas_reports' and 'gas_reports_ignore'.",
                     "warning".yellow().bold(),
                     contract_name

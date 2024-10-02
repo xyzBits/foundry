@@ -321,18 +321,18 @@ impl CreateArgs {
                 "deployedTo": address.to_string(),
                 "transactionHash": receipt.transaction_hash
             });
-            println!("{output}");
+            sh_println!("{output}");
         } else {
-            println!("Deployer: {deployer_address}");
-            println!("Deployed to: {address}");
-            println!("Transaction hash: {:?}", receipt.transaction_hash);
+            sh_println!("Deployer: {deployer_address}");
+            sh_println!("Deployed to: {address}");
+            sh_println!("Transaction hash: {:?}", receipt.transaction_hash);
         };
 
         if !self.verify {
             return Ok(());
         }
 
-        println!("Starting contract verification...");
+        sh_println!("Starting contract verification...");
 
         let num_of_optimizations =
             if self.opts.compiler.optimize { self.opts.compiler.optimizer_runs } else { None };
@@ -358,7 +358,7 @@ impl CreateArgs {
             show_standard_json_input: self.show_standard_json_input,
             guess_constructor_args: false,
         };
-        println!("Waiting for {} to detect contract deployment...", verify.verifier.verifier);
+        sh_println!("Waiting for {} to detect contract deployment...", verify.verifier.verifier);
         verify.run().await
     }
 
@@ -529,7 +529,7 @@ where
 ///     .confirmations(0usize)
 ///     .send()
 ///     .await?;
-/// println!("{}", contract.address());
+/// sh_println!("{}", contract.address());
 /// # Ok(())
 /// # }
 #[derive(Debug)]

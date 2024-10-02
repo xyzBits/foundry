@@ -90,7 +90,7 @@ impl LogsArgs {
         if !subscribe {
             let logs = cast.filter_logs(filter, json).await?;
 
-            println!("{logs}");
+            sh_println!("{logs}");
 
             return Ok(())
         }

@@ -11,7 +11,7 @@ use cast::revm::primitives::{Authorization, U256};
 use clap::Parser;
 use eyre::{Context, Result};
 use foundry_cli::{opts::RpcOpts, utils};
-use foundry_common::fs;
+use foundry_common::{fs, sh_println};
 use foundry_config::Config;
 use foundry_wallets::{RawWalletOpts, WalletOpts, WalletSigner};
 use rand::thread_rng;
@@ -255,16 +255,16 @@ impl WalletSubcommands {
                             }
                             ));
                         } else {
-                            println!(
+                            sh_println!(
                                 "Created new encrypted keystore file: {}",
                                 path.join(uuid).display()
                             );
-                            println!("Address: {}", wallet.address().to_checksum(None));
+                            sh_println!("Address: {}", wallet.address().to_checksum(None));
                         }
                     }
 
                     if let Some(json) = json_values.as_ref() {
-                        println!("{}", serde_json::to_string_pretty(json)?);
+                        sh_println!("{}", serde_json::to_string_pretty(json)?);
                     }
                 } else {
                     for _ in 0..number {
@@ -276,9 +276,9 @@ impl WalletSubcommands {
                                 "private_key": format!("0x{}", hex::encode(wallet.credential().to_bytes())),
                             }))
                         } else {
-                            println!("Successfully created new keypair.");
-                            println!("Address:     {}", wallet.address().to_checksum(None));
-                            println!(
+                            sh_println!("Successfully created new keypair.");
+                            sh_println!("Address:     {}", wallet.address().to_checksum(None));
+                            sh_println!(
                                 "Private key: 0x{}",
                                 hex::encode(wallet.credential().to_bytes())
                             );
@@ -286,14 +286,14 @@ impl WalletSubcommands {
                     }
 
                     if let Some(json) = json_values.as_ref() {
-                        println!("{}", serde_json::to_string_pretty(json)?);
+                        sh_println!("{}", serde_json::to_string_pretty(json)?);
                     }
                 }
             }
             Self::NewMnemonic { words, accounts, entropy } => {
                 let phrase = if let Some(entropy) = entropy {
                     let entropy = Entropy::from_slice(hex::decode(entropy)?)?;
-                    println!("{}", "Generating mnemonic from provided entropy...".yellow());
+                    sh_println!("{}", "Generating mnemonic from provided entropy...".yellow());
                     Mnemonic::<English>::new_from_entropy(entropy).to_phrase()
                 } else {
                     let mut rng = thread_rng();
@@ -308,13 +308,13 @@ impl WalletSubcommands {
                 let wallets =
                     wallets.into_iter().map(|b| b.build()).collect::<Result<Vec<_>, _>>()?;
 
-                println!("{}", "Successfully generated a new mnemonic.".green());
-                println!("Phrase:\n{phrase}");
-                println!("\nAccounts:");
+                sh_println!("{}", "Successfully generated a new mnemonic.".green());
+                sh_println!("Phrase:\n{phrase}");
+                sh_println!("\nAccounts:");
                 for (i, wallet) in wallets.iter().enumerate() {
-                    println!("- Account {i}:");
-                    println!("Address:     {}", wallet.address());
-                    println!("Private key: 0x{}\n", hex::encode(wallet.credential().to_bytes()));
+                    sh_println!("- Account {i}:");
+                    sh_println!("Address:     {}", wallet.address());
+                    sh_println!("Private key: 0x{}\n", hex::encode(wallet.credential().to_bytes()));
                 }
             }
             Self::Vanity(cmd) => {
@@ -330,7 +330,7 @@ impl WalletSubcommands {
                     .signer()
                     .await?;
                 let addr = wallet.address();
-                println!("{}", addr.to_checksum(None));
+                sh_println!("{}", addr.to_checksum(None));
             }
             Self::Sign { message, data, from_file, no_hash, wallet } => {
                 let wallet = wallet.signer().await?;
@@ -348,7 +348,7 @@ impl WalletSubcommands {
                 } else {
                     wallet.sign_message(&Self::hex_str_to_bytes(&message)?).await?
                 };
-                println!("0x{}", hex::encode(sig.as_bytes()));
+                sh_println!("0x{}", hex::encode(sig.as_bytes()));
             }
             Self::SignAuth { rpc, nonce, chain, wallet, address } => {
                 let wallet = wallet.signer().await?;
@@ -366,12 +366,12 @@ impl WalletSubcommands {
                 let auth = Authorization { chain_id: U256::from(chain_id), address, nonce };
                 let signature = wallet.sign_hash(&auth.signature_hash()).await?;
                 let auth = auth.into_signed(signature);
-                println!("{}", hex::encode_prefixed(alloy_rlp::encode(&auth)));
+                sh_println!("{}", hex::encode_prefixed(alloy_rlp::encode(&auth)));
             }
             Self::Verify { message, signature, address } => {
                 let recovered_address = Self::recover_address_from_message(&message, &signature)?;
                 if address == recovered_address {
-                    println!("Validation succeeded. Address {address} signed this message.");
+                    sh_println!("Validation succeeded. Address {address} signed this message.");
                 } else {
                     eyre::bail!("Validation failed. Address {address} did not sign this message.");
                 }
@@ -432,7 +432,7 @@ flag to set your key via:
                     "`{}` keystore was saved successfully. Address: {:?}",
                     &account_name, address,
                 );
-                println!("{}", success_message.green());
+                sh_println!("{}", success_message.green());
             }
             Self::List(cmd) => {
                 cmd.run().await?;
@@ -465,13 +465,13 @@ flag to set your key via:
                 match wallet {
                     WalletSigner::Local(wallet) => {
                         if verbose {
-                            println!("Address:     {}", wallet.address());
-                            println!(
+                            sh_println!("Address:     {}", wallet.address());
+                            sh_println!(
                                 "Private key: 0x{}",
                                 hex::encode(wallet.credential().to_bytes())
                             );
                         } else {
-                            println!("0x{}", hex::encode(wallet.credential().to_bytes()));
+                            sh_println!("0x{}", hex::encode(wallet.credential().to_bytes()));
                         }
                     }
                     _ => {
@@ -509,7 +509,7 @@ flag to set your key via:
                 let success_message =
                     format!("{}'s private key is: {}", &account_name, private_key);
 
-                println!("{}", success_message.green());
+                sh_println!("{}", success_message.green());
             }
         };
 

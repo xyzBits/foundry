@@ -2,6 +2,9 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
 #[macro_use]
+extern crate foundry_common;
+
+#[macro_use]
 extern crate tracing;
 
 use crate::{
@@ -294,9 +297,9 @@ impl NodeHandle {
         self.config.print(fork);
         if !self.config.silent {
             if let Some(ipc_path) = self.ipc_path() {
-                println!("IPC path: {ipc_path}");
+                sh_println!("IPC path: {ipc_path}");
             }
-            println!(
+            sh_println!(
                 "Listening on {}",
                 self.addresses
                     .iter()

@@ -8,7 +8,7 @@ use alloy_rpc_types::AnyTransactionReceipt;
 use eyre::{eyre, ContextCompat, Result, WrapErr};
 use forge_verify::provider::VerificationProviderType;
 use foundry_cli::utils::{now, Git};
-use foundry_common::{fs, shell, TransactionMaybeSigned, SELECTOR_LEN};
+use foundry_common::{fs, TransactionMaybeSigned, SELECTOR_LEN};
 use foundry_compilers::ArtifactId;
 use foundry_config::Config;
 use serde::{Deserialize, Serialize};
@@ -188,8 +188,8 @@ impl ScriptSequence {
         }
 
         if !silent {
-            shell::println(format!("\nTransactions saved to: {}\n", path.display()))?;
-            shell::println(format!("Sensitive values saved to: {}\n", sensitive_path.display()))?;
+            sh_println!("\nTransactions saved to: {}\n", path.display());
+            sh_println!("Sensitive values saved to: {}\n", sensitive_path.display());
         }
 
         Ok(())
@@ -305,13 +305,13 @@ impl ScriptSequence {
 
             let num_verifications = future_verifications.len();
             let mut num_of_successful_verifications = 0;
-            println!("##\nStart verification for ({num_verifications}) contracts");
+            sh_println!("##\nStart verification for ({num_verifications}) contracts");
             for verification in future_verifications {
                 match verification.await {
                     Ok(_) => {
                         num_of_successful_verifications += 1;
                     }
-                    Err(err) => eprintln!("Error during verification: {err:#}"),
+                    Err(err) => sh_eprintln!("Error during verification: {err:#}"),
                 }
             }
 
@@ -319,7 +319,7 @@ impl ScriptSequence {
                 return Err(eyre!("Not all ({num_of_successful_verifications} / {num_verifications}) contracts were verified!"))
             }
 
-            println!("All ({num_verifications}) contracts were verified!");
+            sh_println!("All ({num_verifications}) contracts were verified!");
         }
 
         Ok(())
@@ -329,7 +329,7 @@ impl ScriptSequence {
     /// hints on potential causes.
     fn check_unverified(&self, unverifiable_contracts: Vec<Address>, verify: VerifyBundle) {
         if !unverifiable_contracts.is_empty() {
-            println!(
+            sh_println!(
                 "\n{}",
                 format!(
                     "We haven't found any matching bytecode for the following contracts: {:?}.\n\n{}",
@@ -348,7 +348,7 @@ impl ScriptSequence {
                     .unwrap_or_default();
 
                 if &current_commit != commit {
-                    println!("\tScript was broadcasted on commit `{commit}`, but we are at `{current_commit}`.");
+                    sh_println!("\tScript was broadcasted on commit `{commit}`, but we are at `{current_commit}`.");
                 }
             }
         }

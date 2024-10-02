@@ -65,8 +65,8 @@ impl Eip712Args {
             if let Some(resolved) =
                 resolver.resolve_struct_eip712(id, &mut Default::default(), true)?
             {
-                println!("{resolved}");
-                println!();
+                sh_println!("{resolved}");
+                sh_println!();
             }
         }
 

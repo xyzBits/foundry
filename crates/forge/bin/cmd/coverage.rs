@@ -85,10 +85,10 @@ impl CoverageArgs {
         config.ast = true;
 
         let (project, output) = self.build(&config)?;
-        sh_eprintln!("Analysing contracts...")?;
+        sh_eprintln!("Analysing contracts...");
         let report = self.prepare(&project, &output)?;
 
-        sh_eprintln!("Running tests...")?;
+        sh_eprintln!("Running tests...");
         self.collect(project, &output, report, Arc::new(config), evm_opts).await
     }
 
@@ -116,7 +116,7 @@ impl CoverageArgs {
                 "Note that \"viaIR\" is only available in Solidity 0.8.13 and above.\n",
                 "See more: https://github.com/foundry-rs/foundry/issues/3357",
             ).yellow();
-            sh_eprintln!("{msg}")?;
+            sh_eprintln!("{msg}");
 
             // Enable viaIR with minimum optimization
             // https://github.com/ethereum/solidity/issues/12533#issuecomment-1013073350

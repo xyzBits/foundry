@@ -102,7 +102,7 @@ impl CloneArgs {
         let client = Client::new(chain, etherscan_api_key.clone())?;
 
         // step 1. get the metadata from client
-        sh_note!("Downloading the source code of {} from Etherscan", address)?;
+        sh_println!("Downloading the source code of {address} from Etherscan");
         let meta = Self::collect_metadata_from_client(address, &client).await?;
 
         // step 2. initialize an empty project
@@ -117,9 +117,9 @@ impl CloneArgs {
 
         // step 4. collect the compilation metadata
         // if the etherscan api key is not set, we need to wait for 3 seconds between calls
-        sh_note!("Collecting the creation information of {} from Etherscan...", address)?;
+        sh_println!("Collecting the creation information of {} from Etherscan...", address);
         if etherscan_api_key.is_empty() {
-            sh_eprintln!("Waiting for 5 seconds to avoid rate limit...")?;
+            sh_println!("Waiting for 5 seconds to avoid rate limit...");
             tokio::time::sleep(Duration::from_secs(5)).await;
         }
         Self::collect_compilation_metadata(&meta, chain, address, &root, &client).await?;
@@ -616,7 +616,7 @@ mod tests {
     use std::collections::BTreeMap;
 
     fn assert_successful_compilation(root: &PathBuf) -> ProjectCompileOutput {
-        println!("project_root: {root:#?}");
+        sh_println!("project_root: {root:#?}");
         compile_project(root).expect("compilation failure")
     }
 

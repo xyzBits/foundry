@@ -3,6 +3,9 @@
 //! This module contains the core readline loop for the Chisel CLI as well as the
 //! executable's `main` function.
 
+#[macro_use]
+extern crate foundry_common;
+
 use chisel::{
     history::chisel_history_file,
     prelude::{ChiselCommand, ChiselDispatcher, DispatchResult, SolidityHelper},
@@ -11,7 +14,7 @@ use clap::{Parser, Subcommand};
 use eyre::Context;
 use foundry_cli::{
     handler,
-    opts::CoreBuildArgs,
+    opts::{CoreBuildArgs, ShellOpts},
     utils::{self, LoadConfig},
 };
 use foundry_common::{evm::EvmArgs, fs};
@@ -25,7 +28,6 @@ use foundry_config::{
 use rustyline::{config::Configurer, error::ReadlineError, Editor};
 use std::path::PathBuf;
 use tracing::debug;
-use yansi::Paint;
 
 #[cfg(all(feature = "jemalloc", unix))]
 #[global_allocator]
@@ -49,6 +51,9 @@ const VERSION_MESSAGE: &str = concat!(
 pub struct Chisel {
     #[command(subcommand)]
     pub cmd: Option<ChiselSubcommand>,
+
+    #[clap(flatten)]
+    pub shell: ShellOpts,
 
     /// Path to a directory containing Solidity files to import, or path to a single Solidity file.
     ///
@@ -99,6 +104,7 @@ fn main() -> eyre::Result<()> {
     utils::subscriber();
     utils::load_dotenv();
     let args = Chisel::parse();
+    args.shell.shell().set();
     main_args(args)
 }
 
@@ -131,9 +137,9 @@ async fn main_args(args: Chisel) -> eyre::Result<()> {
             let sessions = dispatcher.dispatch_command(ChiselCommand::ListSessions, &[]).await;
             match sessions {
                 DispatchResult::CommandSuccess(Some(session_list)) => {
-                    println!("{session_list}");
+                    sh_println!("{session_list}");
                 }
-                DispatchResult::CommandFailed(e) => eprintln!("{e}"),
+                DispatchResult::CommandFailed(e) => sh_eprintln!("{e}"),
                 _ => panic!("Unexpected result: Please report this bug."),
             }
             return Ok(())
@@ -143,7 +149,7 @@ async fn main_args(args: Chisel) -> eyre::Result<()> {
             match dispatcher.dispatch_command(ChiselCommand::Load, &[id]).await {
                 DispatchResult::CommandSuccess(_) => { /* Continue */ }
                 DispatchResult::CommandFailed(e) => {
-                    eprintln!("{e}");
+                    sh_eprintln!("{e}");
                     return Ok(())
                 }
                 _ => panic!("Unexpected result! Please report this bug."),
@@ -153,7 +159,7 @@ async fn main_args(args: Chisel) -> eyre::Result<()> {
             if matches!(args.cmd, Some(ChiselSubcommand::View { .. })) {
                 match dispatcher.dispatch_command(ChiselCommand::Source, &[]).await {
                     DispatchResult::CommandSuccess(Some(source)) => {
-                        println!("{source}");
+                        sh_println!("{source}");
                     }
                     _ => panic!("Unexpected result! Please report this bug."),
                 }
@@ -162,8 +168,8 @@ async fn main_args(args: Chisel) -> eyre::Result<()> {
         }
         Some(ChiselSubcommand::ClearCache) => {
             match dispatcher.dispatch_command(ChiselCommand::ClearCache, &[]).await {
-                DispatchResult::CommandSuccess(Some(msg)) => println!("{}", msg.green()),
-                DispatchResult::CommandFailed(e) => eprintln!("{e}"),
+                DispatchResult::CommandSuccess(Some(msg)) => sh_println!("{msg}"),
+                DispatchResult::CommandFailed(e) => sh_eprintln!("{e}"),
                 _ => panic!("Unexpected result! Please report this bug."),
             }
             return Ok(())
@@ -184,7 +190,7 @@ async fn main_args(args: Chisel) -> eyre::Result<()> {
     }
 
     // Print welcome header
-    println!("Welcome to Chisel! Type `{}` to show available commands.", "!help".green());
+    sh_println!("Welcome to Chisel! Type `{}` to show available commands.", "!help");
 
     // Begin Rustyline loop
     loop {
@@ -210,13 +216,13 @@ async fn main_args(args: Chisel) -> eyre::Result<()> {
                 if interrupt {
                     break
                 } else {
-                    println!("(To exit, press Ctrl+C again)");
+                    sh_println!("(To exit, press Ctrl+C again)");
                     interrupt = true;
                 }
             }
             Err(ReadlineError::Eof) => break,
             Err(err) => {
-                println!("Error: {err:?}");
+                sh_println!("Error: {err:?}");
                 break
             }
         }
@@ -247,17 +253,17 @@ async fn dispatch_repl_line(dispatcher: &mut ChiselDispatcher, line: &str) -> bo
         DispatchResult::Success(msg) | DispatchResult::CommandSuccess(msg) => {
             debug!(%line, ?msg, "dispatch success");
             if let Some(msg) = msg {
-                println!("{}", msg.green());
+                sh_println!("{msg}");
             }
         },
-        DispatchResult::UnrecognizedCommand(e) => eprintln!("{e}"),
+        DispatchResult::UnrecognizedCommand(e) => sh_eprintln!("{e}"),
         DispatchResult::SolangParserFailed(e) => {
-            eprintln!("{}", "Compilation error".red());
-            eprintln!("{}", format!("{e:?}").red());
+            sh_eprintln!("Compilation error");
+            sh_eprintln!("{e:?}");
         }
-        DispatchResult::FileIoError(e) => eprintln!("{}", format!("⚒️ Chisel File IO Error - {e}").red()),
-        DispatchResult::CommandFailed(msg) | DispatchResult::Failure(Some(msg)) => eprintln!("{}", msg.red()),
-        DispatchResult::Failure(None) => eprintln!("{}\nPlease Report this bug as a github issue if it persists: https://github.com/foundry-rs/foundry/issues/new/choose", "⚒️ Unknown Chisel Error ⚒️".red()),
+        DispatchResult::FileIoError(e) => sh_eprintln!("{}", format!("⚒️ Chisel File IO Error - {e}")),
+        DispatchResult::CommandFailed(msg) | DispatchResult::Failure(Some(msg)) => sh_eprintln!("{msg}"),
+        DispatchResult::Failure(None) => sh_eprintln!("{}\nPlease Report this bug as a github issue if it persists: https://github.com/foundry-rs/foundry/issues/new/choose", "⚒️ Unknown Chisel Error ⚒️"),
     }
     r.is_error()
 }
@@ -270,20 +276,20 @@ async fn evaluate_prelude(
 ) -> eyre::Result<()> {
     let Some(prelude_dir) = maybe_prelude else { return Ok(()) };
     if prelude_dir.is_file() {
-        println!("{} {}", "Loading prelude source file:".yellow(), prelude_dir.display(),);
+        sh_println!("Loading prelude source file: {}", prelude_dir.display(),);
         load_prelude_file(dispatcher, prelude_dir).await?;
-        println!("{}\n", "Prelude source file loaded successfully!".green());
+        sh_println!("Prelude source file loaded successfully!\n",);
     } else {
         let prelude_sources = fs::files_with_ext(&prelude_dir, "sol");
         let mut print_success_msg = false;
         for source_file in prelude_sources {
             print_success_msg = true;
-            println!("{} {}", "Loading prelude source file:".yellow(), source_file.display());
+            sh_println!("Loading prelude source file: {}", source_file.display());
             load_prelude_file(dispatcher, source_file).await?;
         }
 
         if print_success_msg {
-            println!("{}\n", "All prelude source files loaded successfully!".green());
+            sh_println!("All prelude source files loaded successfully!\n");
         }
     }
     Ok(())

@@ -13,6 +13,8 @@ use std::{
     time::Instant,
 };
 
+use foundry_common::sh_println;
+
 /// Type alias for the result of [generate_wallet].
 pub type GeneratedWallet = (SigningKey, Address);
 
@@ -99,7 +101,7 @@ impl VanityArgs {
             };
         }
 
-        println!("Starting to generate vanity address...");
+        sh_println!("Starting to generate vanity address...");
         let timer = Instant::now();
 
         let wallet = match (left_exact_hex, left_regex, right_exact_hex, right_regex) {
@@ -144,7 +146,7 @@ impl VanityArgs {
             save_wallet_to_file(&wallet, &save_path)?;
         }
 
-        println!(
+        sh_println!(
             "Successfully found vanity address in {:.3} seconds.{}{}\nAddress: {}\nPrivate Key: 0x{}",
             timer.elapsed().as_secs_f64(),
             if nonce.is_some() { "\nContract address: " } else { "" },

@@ -39,7 +39,6 @@ use foundry_evm::{
 };
 use parking_lot::RwLock;
 use std::{collections::VecDeque, fmt, sync::Arc, time::Duration};
-// use yansi::Paint;
 
 // === various limits in number of blocks ===
 

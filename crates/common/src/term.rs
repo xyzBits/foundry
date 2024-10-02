@@ -112,11 +112,11 @@ impl SpinnerReporter {
                         Ok(SpinnerMsg::Msg(msg)) => {
                             spinner.message(msg);
                             // new line so past messages are not overwritten
-                            println!();
+                            sh_println!();
                         }
                         Ok(SpinnerMsg::Shutdown(ack)) => {
                             // end with a newline
-                            println!();
+                            sh_println!();
                             let _ = ack.send(());
                             break
                         }
@@ -202,7 +202,7 @@ pub fn with_spinner_reporter<T>(f: impl FnOnce() -> T) -> T {
 /// Displays warnings on the cli
 macro_rules! cli_warn {
     ($($arg:tt)*) => {
-        eprintln!(
+        sh_eprintln!(
             "{}{} {}",
             yansi::Painted::new("warning").yellow().bold(),
             yansi::Painted::new(":").bold(),

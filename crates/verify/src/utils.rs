@@ -146,7 +146,7 @@ pub fn print_result(
 ) {
     if let Some(res) = res {
         if !args.json {
-            println!(
+            sh_println!(
                 "{} with status {}",
                 format!("{bytecode_type:?} code matched").green().bold(),
                 res.green().bold()
@@ -156,7 +156,7 @@ pub fn print_result(
             json_results.push(json_res);
         }
     } else if !args.json {
-        println!(
+        sh_println!(
             "{}",
             format!(
                 "{bytecode_type:?} code did not match - this may be due to varying compiler settings"
@@ -166,7 +166,7 @@ pub fn print_result(
         );
         let mismatches = find_mismatch_in_settings(etherscan_config, config);
         for mismatch in mismatches {
-            println!("{}", mismatch.red().bold());
+            sh_println!("{}", mismatch.red().bold());
         }
     } else {
         let json_res = JsonResult {

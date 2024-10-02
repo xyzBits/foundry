@@ -71,7 +71,7 @@ impl Debugger {
         let code = match self.try_run() {
             Ok(ExitReason::CharExit) => 0,
             Err(e) => {
-                println!("{e}");
+                sh_println!("{e}");
                 1
             }
         };

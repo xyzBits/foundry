@@ -1,6 +1,9 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
 
+#[macro_use]
+extern crate foundry_common;
+
 use alloy_consensus::TxEnvelope;
 use alloy_dyn_abi::{DynSolType, DynSolValue, FunctionExt};
 use alloy_json_abi::Function;
@@ -120,7 +123,7 @@ where
     /// let tx = WithOtherFields::new(tx);
     /// let cast = Cast::new(alloy_provider);
     /// let data = cast.call(&tx, None, None, false).await?;
-    /// println!("{}", data);
+    /// sh_println!("{}", data);
     /// # Ok(())
     /// # }
     /// ```
@@ -205,7 +208,7 @@ where
     /// let tx = WithOtherFields::new(tx);
     /// let cast = Cast::new(&provider);
     /// let access_list = cast.access_list(&tx, None, false).await?;
-    /// println!("{}", access_list);
+    /// sh_println!("{}", access_list);
     /// # Ok(())
     /// # }
     /// ```
@@ -271,7 +274,7 @@ where
     /// let tx = WithOtherFields::new(tx);
     /// let cast = Cast::new(provider);
     /// let data = cast.send(tx).await?;
-    /// println!("{:#?}", data);
+    /// sh_println!("{:#?}", data);
     /// # Ok(())
     /// # }
     /// ```
@@ -297,7 +300,7 @@ where
     ///     ProviderBuilder::<_, _, AnyNetwork>::default().on_builtin("http://localhost:8545").await?;
     /// let cast = Cast::new(provider);
     /// let res = cast.publish("0x1234".to_string()).await?;
-    /// println!("{:?}", res);
+    /// sh_println!("{:?}", res);
     /// # Ok(())
     /// # }
     /// ```
@@ -326,7 +329,7 @@ where
     ///     ProviderBuilder::<_, _, AnyNetwork>::default().on_builtin("http://localhost:8545").await?;
     /// let cast = Cast::new(provider);
     /// let block = cast.block(5, true, None, false).await?;
-    /// println!("{}", block);
+    /// sh_println!("{}", block);
     /// # Ok(())
     /// # }
     /// ```
@@ -486,7 +489,7 @@ where
     /// let cast = Cast::new(provider);
     /// let addr = Address::from_str("0x7eD52863829AB99354F3a0503A622e82AcD5F7d3")?;
     /// let nonce = cast.nonce(addr, None).await?;
-    /// println!("{}", nonce);
+    /// sh_println!("{}", nonce);
     /// # Ok(())
     /// # }
     /// ```
@@ -509,7 +512,7 @@ where
     /// let addr = Address::from_str("0x7eD52863829AB99354F3a0503A622e82AcD5F7d3")?;
     /// let slots = vec![FixedBytes::from_str("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")?];
     /// let codehash = cast.codehash(addr, slots, None).await?;
-    /// println!("{}", codehash);
+    /// sh_println!("{}", codehash);
     /// # Ok(())
     /// # }
     pub async fn codehash(
@@ -542,7 +545,7 @@ where
     /// let addr = Address::from_str("0x7eD52863829AB99354F3a0503A622e82AcD5F7d3")?;
     /// let slots = vec![FixedBytes::from_str("0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421")?];
     /// let storage_root = cast.storage_root(addr, slots, None).await?;
-    /// println!("{}", storage_root);
+    /// sh_println!("{}", storage_root);
     /// # Ok(())
     /// # }
     pub async fn storage_root(
@@ -574,7 +577,7 @@ where
     /// let cast = Cast::new(provider);
     /// let addr = Address::from_str("0x7eD52863829AB99354F3a0503A622e82AcD5F7d3")?;
     /// let implementation = cast.implementation(addr, None).await?;
-    /// println!("{}", implementation);
+    /// sh_println!("{}", implementation);
     /// # Ok(())
     /// # }
     /// ```
@@ -604,7 +607,7 @@ where
     /// let cast = Cast::new(provider);
     /// let addr = Address::from_str("0x7eD52863829AB99354F3a0503A622e82AcD5F7d3")?;
     /// let admin = cast.admin(addr, None).await?;
-    /// println!("{}", admin);
+    /// sh_println!("{}", admin);
     /// # Ok(())
     /// # }
     /// ```
@@ -634,7 +637,7 @@ where
     /// let cast = Cast::new(provider);
     /// let addr = Address::from_str("7eD52863829AB99354F3a0503A622e82AcD5F7d3")?;
     /// let computed_address = cast.compute_address(addr, None).await?;
-    /// println!("Computed address for address {addr}: {computed_address}");
+    /// sh_println!("Computed address for address {addr}: {computed_address}");
     /// # Ok(())
     /// # }
     /// ```
@@ -657,7 +660,7 @@ where
     /// let cast = Cast::new(provider);
     /// let addr = Address::from_str("0x00000000219ab540356cbb839cbe05303d7705fa")?;
     /// let code = cast.code(addr, None, false).await?;
-    /// println!("{}", code);
+    /// sh_println!("{}", code);
     /// # Ok(())
     /// # }
     /// ```
@@ -693,7 +696,7 @@ where
     /// let cast = Cast::new(provider);
     /// let addr = Address::from_str("0x00000000219ab540356cbb839cbe05303d7705fa")?;
     /// let codesize = cast.codesize(addr, None).await?;
-    /// println!("{}", codesize);
+    /// sh_println!("{}", codesize);
     /// # Ok(())
     /// # }
     /// ```
@@ -715,7 +718,7 @@ where
     /// let cast = Cast::new(provider);
     /// let tx_hash = "0xf8d1713ea15a81482958fb7ddf884baee8d3bcc478c5f2f604e008dc788ee4fc";
     /// let tx = cast.transaction(tx_hash.to_string(), None, false, false).await?;
-    /// println!("{}", tx);
+    /// sh_println!("{}", tx);
     /// # Ok(())
     /// # }
     /// ```
@@ -758,7 +761,7 @@ where
     /// let cast = Cast::new(provider);
     /// let tx_hash = "0xf8d1713ea15a81482958fb7ddf884baee8d3bcc478c5f2f604e008dc788ee4fc";
     /// let receipt = cast.receipt(tx_hash.to_string(), None, 1, None, false, false).await?;
-    /// println!("{}", receipt);
+    /// sh_println!("{}", receipt);
     /// # Ok(())
     /// # }
     /// ```
@@ -821,7 +824,7 @@ where
     /// let result = cast
     ///     .rpc("eth_getBalance", &["0xc94770007dda54cF92009BFF0dE90c06F603a09f", "latest"])
     ///     .await?;
-    /// println!("{}", result);
+    /// sh_println!("{}", result);
     /// # Ok(())
     /// # }
     /// ```
@@ -853,7 +856,7 @@ where
     /// let addr = Address::from_str("0x00000000006c3852cbEf3e08E8dF289169EdE581")?;
     /// let slot = B256::ZERO;
     /// let storage = cast.storage(addr, slot, None).await?;
-    /// println!("{}", storage);
+    /// sh_println!("{}", storage);
     /// # Ok(())
     /// # }
     /// ```
@@ -1946,9 +1949,9 @@ impl SimpleCast {
         if let Some(path) = output_path {
             fs::create_dir_all(path.parent().unwrap())?;
             fs::write(&path, flattened)?;
-            println!("Flattened file written at {}", path.display());
+            sh_println!("Flattened file written at {}", path.display());
         } else {
-            println!("{flattened}");
+            sh_println!("{flattened}");
         }
 
         Ok(())
@@ -1964,7 +1967,7 @@ impl SimpleCast {
     /// # async fn foo() -> eyre::Result<()> {
     /// let bytecode = "0x608060405260043610603f57600035";
     /// let opcodes = Cast::disassemble(bytecode)?;
-    /// println!("{}", opcodes);
+    /// sh_println!("{}", opcodes);
     /// # Ok(())
     /// # }
     /// ```
@@ -2078,7 +2081,7 @@ impl SimpleCast {
     ///
     /// let eof = "0xef0001010004020001005604002000008000046080806040526004361015e100035f80fd5f3560e01c63773d45e01415e1ffee6040600319360112e10028600435906024358201809211e100066020918152f3634e487b7160e01b5f52601160045260245ffd5f80fd0000000000000000000000000124189fc71496f8660db5189f296055ed757632";
     /// let decoded = Cast::decode_eof(&eof)?;
-    /// println!("{}", decoded);
+    /// sh_println!("{}", decoded);
     /// # Ok::<(), eyre::Report>(())
     pub fn decode_eof(eof: &str) -> Result<String> {
         let eof_hex = hex::decode(eof)?;

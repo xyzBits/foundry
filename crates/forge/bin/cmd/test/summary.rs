@@ -88,6 +88,6 @@ impl TestSummaryReporter {
             self.table.add_row(row);
         }
 
-        println!("\n{}", self.table);
+        sh_println!("\n{}", self.table);
     }
 }

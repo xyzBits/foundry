@@ -70,7 +70,7 @@ impl PreSimulationState {
             .collect::<Result<VecDeque<_>>>()?;
 
         if self.args.skip_simulation {
-            shell::println("\nSKIPPING ON CHAIN SIMULATION.")?;
+            sh_println!("\nSKIPPING ON CHAIN SIMULATION.");
         } else {
             transactions = self.simulate_and_fill(transactions).await?;
         }
@@ -146,8 +146,8 @@ impl PreSimulationState {
             .collect::<Vec<_>>();
 
         if self.script_config.evm_opts.verbosity > 3 {
-            println!("==========================");
-            println!("Simulated On-chain Traces:\n");
+            sh_println!("==========================");
+            sh_println!("Simulated On-chain Traces:\n");
         }
 
         let mut abort = false;
@@ -158,14 +158,17 @@ impl PreSimulationState {
             if tx.is_none() || self.script_config.evm_opts.verbosity > 3 {
                 for (_, trace) in &mut traces {
                     decode_trace_arena(trace, &self.execution_artifacts.decoder).await?;
-                    println!("{}", render_trace_arena(trace));
+                    sh_println!("{}", render_trace_arena(trace));
                 }
             }
 
             if let Some(tx) = tx {
                 if is_noop_tx {
                     let to = tx.contract_address.unwrap();
-                    shell::println(format!("Script contains a transaction to {to} which does not contain any code.").yellow())?;
+                    sh_println!(
+                        "Script contains a transaction to {to} which does not contain any code."
+                    )
+                    .yellow();
 
                     // Only prompt if we're broadcasting and we've not disabled interactivity.
                     if self.args.should_broadcast() &&
@@ -215,7 +218,7 @@ impl PreSimulationState {
         if !shell::verbosity().is_quiet() {
             let n = rpcs.len();
             let s = if n != 1 { "s" } else { "" };
-            println!("\n## Setting up {n} EVM{s}.");
+            sh_println!("\n## Setting up {n} EVM{s}.");
         }
 
         let futs = rpcs.into_iter().map(|rpc| async move {
@@ -342,24 +345,24 @@ impl FilledTransactionsState {
                     provider_info.gas_price()?
                 };
 
-                shell::println("\n==========================")?;
-                shell::println(format!("\nChain {}", provider_info.chain))?;
+                sh_println!("\n==========================");
+                sh_println!("\nChain {}", provider_info.chain);
 
-                shell::println(format!(
+                sh_println!(
                     "\nEstimated gas price: {} gwei",
                     format_units(per_gas, 9)
                         .unwrap_or_else(|_| "[Could not calculate]".to_string())
                         .trim_end_matches('0')
                         .trim_end_matches('.')
-                ))?;
-                shell::println(format!("\nEstimated total gas used for script: {total_gas}"))?;
-                shell::println(format!(
+                );
+                sh_println!("\nEstimated total gas used for script: {total_gas}");
+                sh_println!(
                     "\nEstimated amount required: {} ETH",
                     format_units(total_gas.saturating_mul(per_gas), 18)
                         .unwrap_or_else(|_| "[Could not calculate]".to_string())
                         .trim_end_matches('0')
-                ))?;
-                shell::println("\n==========================")?;
+                );
+                sh_println!("\n==========================");
             }
         }
 
