@@ -27,11 +27,11 @@ extern crate tracing;
 #[macro_use]
 extern crate foundry_common;
 
-pub mod args;
 pub mod cmd;
+pub mod opts;
 pub mod tx;
 
-use args::{Cast as CastArgs, CastSubcommand, ToBaseArgs};
+use opts::{Cast as CastArgs, CastSubcommand, ToBaseArgs};
 
 #[cfg(all(feature = "jemalloc", unix))]
 #[global_allocator]
