@@ -73,21 +73,21 @@ pub struct TestArgs {
     ///
     /// If the matching test is a fuzz test, then it will open the debugger on the first failure
     /// case. If the fuzz test does not fail, it will open the debugger on the last fuzz case.
-    #[arg(long, value_name = "DEPRECATED_TEST_FUNCTION_REGEX")]
+    #[arg(long, conflicts_with_all(["json", "junit", "flamegraph", "flamechart", "list"]), value_name = "DEPRECATED_TEST_FUNCTION_REGEX")]
     debug: Option<Option<Regex>>,
 
     /// Generate a flamegraph for a single test. Implies `--decode-internal`.
     ///
     /// A flame graph is used to visualize which functions or operations within the smart contract
     /// are consuming the most gas overall in a sorted manner.
-    #[arg(long)]
+    #[arg(long, conflicts_with_all(["json", "junit", "list"]))]
     flamegraph: bool,
 
     /// Generate a flamechart for a single test. Implies `--decode-internal`.
     ///
     /// A flame chart shows the gas usage over time, illustrating when each function is
     /// called (execution order) and how much gas it consumes at each point in the timeline.
-    #[arg(long, conflicts_with = "flamegraph")]
+    #[arg(long, conflicts_with_all(["json", "junit", "flamegraph", "list"]))]
     flamechart: bool,
 
     /// Identify internal functions in traces.
@@ -96,11 +96,11 @@ pub struct TestArgs {
     ///
     /// Parameters stored in memory (such as bytes or arrays) are currently decoded only when a
     /// single function is matched, similarly to `--debug`, for performance reasons.
-    #[arg(long, value_name = "DEPRECATED_TEST_FUNCTION_REGEX")]
+    #[arg(long, conflicts_with = "list", value_name = "DEPRECATED_TEST_FUNCTION_REGEX")]
     decode_internal: Option<Option<Regex>>,
 
     /// Print a gas report.
-    #[arg(long, env = "FORGE_GAS_REPORT")]
+    #[arg(long, conflicts_with_all(["junit", "list"]), env = "FORGE_GAS_REPORT")]
     gas_report: bool,
 
     /// Exit with code 0 even if a test fails.
@@ -108,11 +108,11 @@ pub struct TestArgs {
     allow_failure: bool,
 
     /// Output test results in JSON format.
-    #[arg(long, help_heading = "Display options")]
+    #[arg(long, conflicts_with_all(["junit"]), help_heading = "Display options")]
     json: bool,
 
     /// Output test results as JUnit XML report.
-    #[arg(long, conflicts_with = "json", help_heading = "Display options")]
+    #[arg(long, help_heading = "Display options")]
     junit: bool,
 
     /// Stop running tests after the first failure.
@@ -124,7 +124,7 @@ pub struct TestArgs {
     etherscan_api_key: Option<String>,
 
     /// List tests instead of running them.
-    #[arg(long, short, help_heading = "Display options")]
+    #[arg(long, short, conflicts_with_all(["junit", "summary", "detailed"]), help_heading = "Display options")]
     list: bool,
 
     /// Set seed used to generate randomness during your fuzz runs.
@@ -144,7 +144,7 @@ pub struct TestArgs {
     pub threads: Option<usize>,
 
     /// Show test execution progress.
-    #[arg(long)]
+    #[arg(long, conflicts_with_all(["json", "junit"]), help_heading = "Display options")]
     pub show_progress: bool,
 
     #[command(flatten)]
@@ -165,11 +165,11 @@ pub struct TestArgs {
     pub watch: WatchArgs,
 
     /// Print test summary table.
-    #[arg(long, help_heading = "Display options")]
+    #[arg(long, conflicts_with_all(["json", "junit"]), help_heading = "Display options")]
     pub summary: bool,
 
     /// Print detailed test summary table.
-    #[arg(long, help_heading = "Display options", requires = "summary")]
+    #[arg(long, conflicts_with_all(["json", "junit"]), help_heading = "Display options", requires = "summary")]
     pub detailed: bool,
 }
 
