@@ -70,9 +70,9 @@ pub struct BuildArgs {
 
     /// Output the compilation errors in the json format.
     /// This is useful when you want to use the output in other tools.
-    #[arg(long, conflicts_with = "silent")]
+    #[arg(long, alias = "format-json", conflicts_with = "silent")]
     #[serde(skip)]
-    pub format_json: bool,
+    pub json: bool,
 }
 
 impl BuildArgs {
@@ -102,12 +102,12 @@ impl BuildArgs {
             .files(files)
             .print_names(self.names)
             .print_sizes(self.sizes)
-            .quiet(self.format_json)
-            .bail(!self.format_json);
+            .quiet(self.json)
+            .bail(!self.json);
 
         let output = compiler.compile(&project)?;
 
-        if self.format_json {
+        if self.json {
             println!("{}", serde_json::to_string_pretty(&output.output())?);
         }
 
