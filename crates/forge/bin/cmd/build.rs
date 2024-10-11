@@ -107,7 +107,7 @@ impl BuildArgs {
 
         let output = compiler.compile(&project)?;
 
-        if self.json {
+        if self.json && !self.names && !self.sizes {
             println!("{}", serde_json::to_string_pretty(&output.output())?);
         }
 
