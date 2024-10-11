@@ -2,7 +2,7 @@ use super::{install, watch::WatchArgs};
 use clap::Parser;
 use eyre::Result;
 use foundry_cli::{opts::CoreBuildArgs, utils::LoadConfig};
-use foundry_common::compile::ProjectCompiler;
+use foundry_common::{compile::ProjectCompiler, structs::OutputKind};
 use foundry_compilers::{
     compilers::{multi::MultiCompilerLanguage, Language},
     utils::source_files_iter,
@@ -102,6 +102,7 @@ impl BuildArgs {
             .files(files)
             .print_names(self.names)
             .print_sizes(self.sizes)
+            .output_type(if self.json { OutputKind::JSON } else { OutputKind::Markdown })
             .quiet(self.json)
             .bail(!self.json);
 

@@ -1,6 +1,6 @@
 //! Support for compiling [foundry_compilers::Project]
 
-use crate::{term::SpinnerReporter, TestFunctionExt};
+use crate::{structs::OutputKind, term::SpinnerReporter, TestFunctionExt};
 use comfy_table::{presets::ASCII_MARKDOWN, Attribute, Cell, CellAlignment, Color, Table};
 use eyre::Result;
 use foundry_block_explorers::contract::Metadata;
@@ -38,6 +38,9 @@ pub struct ProjectCompiler {
     /// Whether to also print contract sizes.
     print_sizes: Option<bool>,
 
+    /// The output kind to render.
+    output_type: OutputKind,
+
     /// Whether to print anything at all. Overrides other `print` options.
     quiet: Option<bool>,
 
@@ -63,6 +66,7 @@ impl ProjectCompiler {
             verify: None,
             print_names: None,
             print_sizes: None,
+            output_type: OutputKind::default(),
             quiet: Some(crate::shell::verbosity().is_silent()),
             bail: None,
             files: Vec::new(),
@@ -87,6 +91,13 @@ impl ProjectCompiler {
     #[inline]
     pub fn print_sizes(mut self, yes: bool) -> Self {
         self.print_sizes = Some(yes);
+        self
+    }
+
+    /// Sets the output kind to render.
+    #[inline]
+    pub fn output_type(mut self, output_type: OutputKind) -> Self {
+        self.output_type = output_type;
         self
     }
 
@@ -203,13 +214,25 @@ impl ProjectCompiler {
             for (name, (_, version)) in output.versioned_artifacts() {
                 artifacts.entry(version).or_default().push(name);
             }
+
             for (version, names) in artifacts {
-                println!(
-                    "  compiler version: {}.{}.{}",
-                    version.major, version.minor, version.patch
-                );
-                for name in names {
-                    println!("    - {name}");
+                let compiler_version =
+                    format!("{}.{}.{}", version.major, version.minor, version.patch);
+
+                println!("{:?}", self.output_type);
+
+                if self.output_type == OutputKind::JSON {
+                    let json = serde_json::json!({
+                        format!("{compiler_version}"): {
+                            "names": names,
+                        },
+                    });
+                    println!("{}", serde_json::to_string_pretty(&json).unwrap());
+                } else {
+                    println!("{compiler_version}");
+                    for name in names {
+                        println!("  - {name}");
+                    }
                 }
             }
         }
