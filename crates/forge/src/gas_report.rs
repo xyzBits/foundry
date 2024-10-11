@@ -6,23 +6,11 @@ use crate::{
 };
 use alloy_primitives::map::HashSet;
 use comfy_table::{presets::ASCII_MARKDOWN, *};
-use foundry_common::{calc, TestFunctionExt};
+use foundry_common::{calc, structs::OutputKind, TestFunctionExt};
 use foundry_evm::traces::CallKind;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fmt::Display};
 use yansi::Paint;
-
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub enum GasReportKind {
-    Markdown,
-    JSON,
-}
-
-impl Default for GasReportKind {
-    fn default() -> Self {
-        Self::Markdown
-    }
-}
 
 /// Represents the gas report for a set of contracts.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
@@ -30,7 +18,7 @@ pub struct GasReport {
     /// Whether to report any contracts.
     report_any: bool,
     /// What kind of report to generate.
-    report_type: GasReportKind,
+    report_type: OutputKind,
     /// Contracts to generate the report for.
     report_for: HashSet<String>,
     /// Contracts to ignore when generating the report.
@@ -44,7 +32,7 @@ impl GasReport {
     pub fn new(
         report_for: impl IntoIterator<Item = String>,
         ignore: impl IntoIterator<Item = String>,
-        report_kind: GasReportKind,
+        report_kind: OutputKind,
     ) -> Self {
         let report_for = report_for.into_iter().collect::<HashSet<_>>();
         let ignore = ignore.into_iter().collect::<HashSet<_>>();
@@ -162,7 +150,7 @@ impl Display for GasReport {
                 continue;
             }
 
-            if self.report_type == GasReportKind::JSON {
+            if self.report_type == OutputKind::JSON {
                 writeln!(f, "{}", serde_json::to_string(&contract).unwrap())?;
                 continue;
             }

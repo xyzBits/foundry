@@ -27,6 +27,7 @@ pub mod retry;
 pub mod selectors;
 pub mod serde_helpers;
 pub mod shell;
+pub mod structs;
 pub mod term;
 pub mod traits;
 pub mod transactions;
