@@ -158,7 +158,7 @@ impl TestOutcome {
             return Ok(());
         }
 
-        if shell::is_quiet() {
+        if shell::is_quiet() || silent {
             // TODO: Avoid process::exit
             std::process::exit(1);
         }
