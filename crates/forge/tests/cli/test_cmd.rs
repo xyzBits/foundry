@@ -51,8 +51,8 @@ contract Dummy {}
     cmd.args(["test"]);
 
     // run command and assert
-    cmd.assert_failure().stdout_eq(str![[r#"
-No tests found in project! Forge looks for functions that starts with `test`.
+    cmd.assert_failure().stderr_eq(str![[r#"
+Warning: No tests found in project! Forge looks for functions that start with `test`.
 
 "#]]);
 });
@@ -73,8 +73,8 @@ contract Dummy {}
     cmd.args(["--match-path", "*TestE*", "--no-match-path", "*TestF*"]);
 
     // run command and assert
-    cmd.assert_failure().stdout_eq(str![[r#"
-No tests match the provided pattern:
+    cmd.assert_failure().stderr_eq(str![[r#"
+Error: No tests match the provided pattern:
 	match-test: `testA.*`
 	no-match-test: `testB.*`
 	match-contract: `TestC.*`
@@ -105,8 +105,8 @@ contract TestC {
     cmd.args(["--match-path", "*TestE*", "--no-match-path", "*TestF*"]);
 
     // run command and assert
-    cmd.assert_failure().stdout_eq(str![[r#"
-No tests match the provided pattern:
+    cmd.assert_failure().stderr_eq(str![[r#"
+Error: No tests match the provided pattern:
 	match-test: `testA.*`
 	no-match-test: `testB.*`
 	match-contract: `TestC.*`

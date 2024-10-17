@@ -177,6 +177,7 @@ fn next_url(is_ws: bool, chain: NamedChain) -> String {
 }
 
 #[cfg(test)]
+#[allow(clippy::disallowed_macros)]
 #[allow(clippy::needless_return)]
 mod tests {
     use super::*;
@@ -185,7 +186,6 @@ mod tests {
 
     #[tokio::test]
     #[ignore = "run manually"]
-    #[allow(clippy::disallowed_macros)]
     async fn test_etherscan_keys() {
         let address = address!("dAC17F958D2ee523a2206206994597C13D831ec7");
         let mut first_abi = None;

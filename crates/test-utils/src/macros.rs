@@ -89,7 +89,6 @@ macro_rules! casttest {
 }
 
 /// Same as `forgetest` but returns an already initialized project workspace (`forge init`)
-#[allow(clippy::disallowed_macros)]
 #[macro_export]
 macro_rules! forgetest_init {
     ($(#[$attr:meta])* $test:ident, |$prj:ident, $cmd:ident| $e:expr) => {
@@ -108,7 +107,6 @@ macro_rules! forgetest_init {
 }
 
 /// Setup forge soldeer
-#[allow(clippy::disallowed_macros)]
 #[macro_export]
 macro_rules! forgesoldeer {
     ($(#[$attr:meta])* $test:ident, |$prj:ident, $cmd:ident| $e:expr) => {

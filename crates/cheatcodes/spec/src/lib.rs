@@ -100,8 +100,8 @@ impl Cheatcodes<'static> {
     }
 }
 
-#[allow(clippy::disallowed_macros)]
 #[cfg(test)]
+#[allow(clippy::disallowed_macros)]
 mod tests {
     use super::*;
     use std::{fs, path::Path};
@@ -156,7 +156,6 @@ interface Vm {{
     }
 
     #[test]
-    #[allow(clippy::disallowed_macros)]
     fn iface_up_to_date() {
         ensure_file_contents(Path::new(IFACE_PATH), &sol_iface());
     }

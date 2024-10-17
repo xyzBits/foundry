@@ -120,7 +120,7 @@ impl StorageArgs {
 
         // Not a forge project or artifact not found
         // Get code from Etherscan
-        sh_println!("No matching artifacts found, fetching source code from Etherscan...");
+        sh_eprintln!("No matching artifacts found, fetching source code from Etherscan...");
 
         if !self.etherscan.has_key() {
             eyre::bail!("You must provide an Etherscan API key if you're fetching a remote contract's storage.");

@@ -223,7 +223,6 @@ impl ExtTester {
 /// This used to use a `static` `Lazy`, but this approach does not with `cargo-nextest` because it
 /// runs each test in a separate process. Instead, we use a global lock file to ensure that only one
 /// test can initialize the template at a time.
-#[allow(clippy::disallowed_macros)]
 pub fn initialize(target: &Path) {
     println!("initializing {}", target.display());
 
