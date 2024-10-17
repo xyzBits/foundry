@@ -7,7 +7,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
 };
 use eyre::Result;
-use foundry_common::evm::Breakpoints;
+use foundry_common::{evm::Breakpoints, sh_err};
 use foundry_evm_traces::debug::ContractSources;
 use ratatui::{
     backend::{Backend, CrosstermBackend},
@@ -71,7 +71,7 @@ impl Debugger {
         let code = match self.try_run() {
             Ok(ExitReason::CharExit) => 0,
             Err(e) => {
-                println!("{e}");
+                sh_err!("{e}");
                 1
             }
         };

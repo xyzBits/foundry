@@ -8,6 +8,10 @@
 
 #[macro_use]
 pub extern crate foundry_cheatcodes_spec as spec;
+
+#[macro_use]
+extern crate foundry_common;
+
 #[macro_use]
 extern crate tracing;
 

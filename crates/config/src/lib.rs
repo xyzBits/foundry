@@ -952,15 +952,7 @@ impl Config {
             // If it takes more than 1 second, this likely means we are pulling the image.
             return match rx.recv_timeout(Duration::from_secs(1)) {
                 Ok(res) => res,
-                Err(RecvTimeoutError::Timeout) => {
-                    eprintln!(
-                        "{}",
-                        yansi::Paint::yellow(
-                            "Pulling Docker image for eof-solc, this might take some time..."
-                        )
-                    );
-                    rx.recv().expect("sender dropped")
-                }
+                Err(RecvTimeoutError::Timeout) => rx.recv().expect("sender dropped"),
                 Err(RecvTimeoutError::Disconnected) => panic!("sender dropped"),
             }
         }
@@ -4893,6 +4885,7 @@ mod tests {
     // a test to print the config, mainly used to update the example config in the README
     #[test]
     #[ignore]
+    #[allow(clippy::disallowed_macros)]
     fn print_config() {
         let config = Config {
             optimizer_details: Some(OptimizerDetails {

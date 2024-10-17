@@ -609,6 +609,7 @@ impl EtherscanClient for Client {
 
 #[cfg(test)]
 #[allow(clippy::needless_return)]
+#[allow(clippy::disallowed_macros)]
 mod tests {
     use super::*;
     use alloy_primitives::hex;

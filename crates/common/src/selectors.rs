@@ -496,20 +496,24 @@ impl SelectorImportResponse {
             .function
             .imported
             .iter()
-            .for_each(|(k, v)| println!("Imported: Function {k}: {v}"));
-        self.result.event.imported.iter().for_each(|(k, v)| println!("Imported: Event {k}: {v}"));
+            .for_each(|(k, v)| sh_println!("Imported: Function {k}: {v}"));
+        self.result
+            .event
+            .imported
+            .iter()
+            .for_each(|(k, v)| sh_println!("Imported: Event {k}: {v}"));
         self.result
             .function
             .duplicated
             .iter()
-            .for_each(|(k, v)| println!("Duplicated: Function {k}: {v}"));
+            .for_each(|(k, v)| sh_println!("Duplicated: Function {k}: {v}"));
         self.result
             .event
             .duplicated
             .iter()
-            .for_each(|(k, v)| println!("Duplicated: Event {k}: {v}"));
+            .for_each(|(k, v)| sh_println!("Duplicated: Event {k}: {v}"));
 
-        println!("Selectors successfully uploaded to OpenChain");
+        sh_println!("Selectors successfully uploaded to OpenChain");
     }
 }
 
@@ -625,7 +629,6 @@ mod tests {
 
         let abi: JsonAbi = serde_json::from_str(r#"[{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"_value","type":"uint256"}],"name":"transfer","outputs":[{"name":"","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function", "methodIdentifiers": {"transfer(address,uint256)(uint256)": "0xa9059cbb"}}]"#).unwrap();
         let result = import_selectors(SelectorImportData::Abi(vec![abi])).await;
-        println!("{result:?}");
         assert_eq!(
             result.unwrap().result.function.duplicated.get("transfer(address,uint256)").unwrap(),
             "0xa9059cbb"

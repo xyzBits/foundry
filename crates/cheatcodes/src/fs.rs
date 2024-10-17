@@ -616,11 +616,11 @@ fn prompt(
 
     match rx.recv_timeout(timeout) {
         Ok(res) => res.map_err(|err| {
-            println!();
+            sh_println!();
             err.to_string().into()
         }),
         Err(_) => {
-            println!();
+            sh_println!();
             Err("Prompt timed out".into())
         }
     }

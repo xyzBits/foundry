@@ -12,7 +12,6 @@ use foundry_common::ContractsByArtifact;
 use foundry_compilers::{info::ContractInfo, Project};
 use foundry_config::{Chain, Config};
 use semver::Version;
-use yansi::Paint;
 
 /// State after we have broadcasted the script.
 /// It is assumed that at this point [BroadcastedState::sequence] contains receipts for all
@@ -218,13 +217,13 @@ async fn verify_contracts(
 
         let num_verifications = future_verifications.len();
         let mut num_of_successful_verifications = 0;
-        println!("##\nStart verification for ({num_verifications}) contracts");
+        sh_println!("##\nStart verification for ({num_verifications}) contracts");
         for verification in future_verifications {
             match verification.await {
                 Ok(_) => {
                     num_of_successful_verifications += 1;
                 }
-                Err(err) => eprintln!("Error during verification: {err:#}"),
+                Err(err) => sh_err!("Error during verification: {err:#}"),
             }
         }
 
@@ -232,7 +231,7 @@ async fn verify_contracts(
             return Err(eyre!("Not all ({num_of_successful_verifications} / {num_verifications}) contracts were verified!"))
         }
 
-        println!("All ({num_verifications}) contracts were verified!");
+        sh_println!("All ({num_verifications}) contracts were verified!");
     }
 
     Ok(())
@@ -244,15 +243,10 @@ fn check_unverified(
     verify: VerifyBundle,
 ) {
     if !unverifiable_contracts.is_empty() {
-        println!(
-            "\n{}",
-            format!(
-                "We haven't found any matching bytecode for the following contracts: {:?}.\n\n{}",
-                unverifiable_contracts,
-                "This may occur when resuming a verification, but the underlying source code or compiler version has changed."
-            )
-            .yellow()
-            .bold(),
+        sh_warn!(
+            "\nWe haven't found any matching bytecode for the following contracts: {:?}.\n\n{}",
+            unverifiable_contracts,
+            "This may occur when resuming a verification, but the underlying source code or compiler version has changed."
         );
 
         if let Some(commit) = &sequence.commit {
@@ -263,7 +257,7 @@ fn check_unverified(
                 .unwrap_or_default();
 
             if &current_commit != commit {
-                println!("\tScript was broadcasted on commit `{commit}`, but we are at `{current_commit}`.");
+                sh_println!("\tScript was broadcasted on commit `{commit}`, but we are at `{current_commit}`.");
             }
         }
     }

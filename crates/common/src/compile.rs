@@ -116,7 +116,7 @@ impl ProjectCompiler {
     pub fn compile<C: Compiler>(mut self, project: &Project<C>) -> Result<ProjectCompileOutput<C>> {
         // TODO: Avoid process::exit
         if !project.paths.has_input_files() && self.files.is_empty() {
-            println!("Nothing to compile");
+            sh_println!("Nothing to compile");
             // nothing to do here
             std::process::exit(0);
         }
@@ -171,10 +171,9 @@ impl ProjectCompiler {
 
         if !quiet {
             if output.is_unchanged() {
-                println!("No files changed, compilation skipped");
+                sh_println!("No files changed, compilation skipped");
             } else {
-                // print the compiler output / warnings
-                println!("{output}");
+                sh_println!("{output}");
             }
 
             self.handle_output(&output);
@@ -195,12 +194,14 @@ impl ProjectCompiler {
                 artifacts.entry(version).or_default().push(name);
             }
             for (version, names) in artifacts {
-                println!(
+                sh_println!(
                     "  compiler version: {}.{}.{}",
-                    version.major, version.minor, version.patch
+                    version.major,
+                    version.minor,
+                    version.patch
                 );
                 for name in names {
-                    println!("    - {name}");
+                    sh_println!("    - {name}");
                 }
             }
         }
@@ -208,7 +209,7 @@ impl ProjectCompiler {
         if print_sizes {
             // add extra newline if names were already printed
             if print_names {
-                println!();
+                sh_println!();
             }
 
             let mut size_report = SizeReport { contracts: BTreeMap::new() };
@@ -238,7 +239,7 @@ impl ProjectCompiler {
                 size_report.contracts.insert(name, ContractInfo { size, is_dev_contract });
             }
 
-            println!("{size_report}");
+            sh_println!("{size_report}");
 
             // TODO: avoid process::exit
             // exit with error if any contract exceeds the size limit, excluding test contracts.

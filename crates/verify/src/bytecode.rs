@@ -145,7 +145,7 @@ impl VerifyBytecodeArgs {
         }
 
         if !self.json {
-            println!(
+            sh_println!(
                 "Verifying bytecode for contract {} at address {}",
                 self.contract.name.clone().green(),
                 self.address.green()
@@ -215,12 +215,7 @@ impl VerifyBytecodeArgs {
 
         if maybe_predeploy {
             if !self.json {
-                println!(
-                    "{}",
-                    format!("Attempting to verify predeployed contract at {:?}. Ignoring creation code verification.", self.address)
-                        .yellow()
-                        .bold()
-                )
+                sh_warn!("Attempting to verify predeployed contract at {:?}. Ignoring creation code verification.", self.address);
             }
 
             // Append constructor args to the local_bytecode.

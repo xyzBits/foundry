@@ -407,9 +407,9 @@ impl Installer<'_> {
 
         // multiple candidates, ask the user to choose one or skip
         candidates.insert(0, String::from("SKIP AND USE ORIGINAL TAG"));
-        println!("There are multiple matching tags:");
+        sh_println!("There are multiple matching tags:");
         for (i, candidate) in candidates.iter().enumerate() {
-            println!("[{i}] {candidate}");
+            sh_println!("[{i}] {candidate}");
         }
 
         let n_candidates = candidates.len();
@@ -424,7 +424,7 @@ impl Installer<'_> {
                 Ok(0) => return Ok(tag.into()),
                 Ok(i) if (1..=n_candidates).contains(&i) => {
                     let c = &candidates[i];
-                    println!("[{i}] {c} selected");
+                    sh_println!("[{i}] {c} selected");
                     return Ok(c.clone())
                 }
                 _ => continue,
@@ -469,9 +469,9 @@ impl Installer<'_> {
 
         // multiple candidates, ask the user to choose one or skip
         candidates.insert(0, format!("{tag} (original branch)"));
-        println!("There are multiple matching branches:");
+        sh_println!("There are multiple matching branches:");
         for (i, candidate) in candidates.iter().enumerate() {
-            println!("[{i}] {candidate}");
+            sh_println!("[{i}] {candidate}");
         }
 
         let n_candidates = candidates.len();
@@ -483,7 +483,7 @@ impl Installer<'_> {
 
         // default selection, return None
         if input.is_empty() {
-            println!("Canceled branch matching");
+            sh_println!("Canceled branch matching");
             return Ok(None)
         }
 
@@ -492,7 +492,7 @@ impl Installer<'_> {
             Ok(0) => Ok(Some(tag.into())),
             Ok(i) if (1..=n_candidates).contains(&i) => {
                 let c = &candidates[i];
-                println!("[{i}] {c} selected");
+                sh_println!("[{i}] {c} selected");
                 Ok(Some(c.clone()))
             }
             _ => Ok(None),

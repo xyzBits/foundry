@@ -1,5 +1,6 @@
 use crate::init_tracing;
 use eyre::{Result, WrapErr};
+use foundry_common::sh_println;
 use foundry_compilers::{
     cache::CompilerCache,
     compilers::multi::MultiCompiler,
@@ -141,7 +142,7 @@ impl ExtTester {
     pub fn run(&self) {
         // Skip fork tests if the RPC url is not set.
         if self.fork_block.is_some() && std::env::var_os("ETH_RPC_URL").is_none() {
-            eprintln!("ETH_RPC_URL is not set; skipping");
+            sh_println!("ETH_RPC_URL is not set; skipping");
             return;
         }
 
@@ -159,7 +160,7 @@ impl ExtTester {
         if self.rev.is_empty() {
             let mut git = Command::new("git");
             git.current_dir(root).args(["log", "-n", "1"]);
-            eprintln!("$ {git:?}");
+            sh_println!("$ {git:?}");
             let output = git.output().unwrap();
             if !output.status.success() {
                 panic!("git log failed: {output:?}");
@@ -170,7 +171,7 @@ impl ExtTester {
         } else {
             let mut git = Command::new("git");
             git.current_dir(root).args(["checkout", self.rev]);
-            eprintln!("$ {git:?}");
+            sh_println!("$ {git:?}");
             let status = git.status().unwrap();
             if !status.success() {
                 panic!("git checkout failed: {status}");
@@ -181,15 +182,15 @@ impl ExtTester {
         for install_command in &self.install_commands {
             let mut install_cmd = Command::new(&install_command[0]);
             install_cmd.args(&install_command[1..]).current_dir(root);
-            eprintln!("cd {root}; {install_cmd:?}");
+            sh_println!("cd {root}; {install_cmd:?}");
             match install_cmd.status() {
                 Ok(s) => {
-                    eprintln!("\n\n{install_cmd:?}: {s}");
+                    sh_println!("\n\n{install_cmd:?}: {s}");
                     if s.success() {
                         break;
                     }
                 }
-                Err(e) => eprintln!("\n\n{install_cmd:?}: {e}"),
+                Err(e) => sh_println!("\n\n{install_cmd:?}: {e}"),
             }
         }
 
@@ -222,8 +223,9 @@ impl ExtTester {
 /// This used to use a `static` `Lazy`, but this approach does not with `cargo-nextest` because it
 /// runs each test in a separate process. Instead, we use a global lock file to ensure that only one
 /// test can initialize the template at a time.
+#[allow(clippy::disallowed_macros)]
 pub fn initialize(target: &Path) {
-    eprintln!("initializing {}", target.display());
+    println!("initializing {}", target.display());
 
     let tpath = TEMPLATE_PATH.as_path();
     pretty_err(tpath, fs::create_dir_all(tpath));
@@ -251,7 +253,7 @@ pub fn initialize(target: &Path) {
         if data != "1" {
             // Initialize and build.
             let (prj, mut cmd) = setup_forge("template", foundry_compilers::PathStyle::Dapptools);
-            eprintln!("- initializing template dir in {}", prj.root().display());
+            sh_println!("- initializing template dir in {}", prj.root().display());
 
             cmd.args(["init", "--force"]).assert_success();
             // checkout forge-std
@@ -281,7 +283,7 @@ pub fn initialize(target: &Path) {
         _read = Some(lock.read().unwrap());
     }
 
-    eprintln!("- copying template dir from {}", tpath.display());
+    sh_println!("- copying template dir from {}", tpath.display());
     pretty_err(target, fs::create_dir_all(target));
     pretty_err(target, copy_dir(tpath, target));
 }
@@ -291,12 +293,12 @@ pub fn clone_remote(repo_url: &str, target_dir: &str) {
     let mut cmd = Command::new("git");
     cmd.args(["clone", "--no-tags", "--recursive", "--shallow-submodules"]);
     cmd.args([repo_url, target_dir]);
-    eprintln!("{cmd:?}");
+    sh_println!("{cmd:?}");
     let status = cmd.status().unwrap();
     if !status.success() {
         panic!("git clone failed: {status}");
     }
-    eprintln!();
+    sh_println!();
 }
 
 /// Setup an empty test project and return a command pointing to the forge
@@ -922,7 +924,7 @@ impl TestCommand {
 
     #[track_caller]
     pub fn try_execute(&mut self) -> std::io::Result<Output> {
-        eprintln!("executing {:?}", self.cmd);
+        sh_println!("executing {:?}", self.cmd);
         let mut child =
             self.cmd.stdout(Stdio::piped()).stderr(Stdio::piped()).stdin(Stdio::piped()).spawn()?;
         if let Some(fun) = self.stdin_fun.take() {

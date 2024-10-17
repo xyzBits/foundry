@@ -40,7 +40,7 @@ impl VerificationProvider for SourcifyVerificationProvider {
         let resp = retry
             .run_async(|| {
                 async {
-                    println!(
+                    sh_println!(
                         "\nSubmitting verification for [{}] {:?}.",
                         context.target_name,
                         args.address.to_string()
@@ -145,15 +145,15 @@ impl SourcifyVerificationProvider {
         match response.status.as_str() {
             "perfect" => {
                 if let Some(ts) = &response.storage_timestamp {
-                    println!("Contract source code already verified. Storage Timestamp: {ts}");
+                    sh_println!("Contract source code already verified. Storage Timestamp: {ts}");
                 } else {
-                    println!("Contract successfully verified");
+                    sh_println!("Contract successfully verified");
                 }
             }
             "partial" => {
-                println!("The recompiled contract partially matches the deployed version");
+                sh_println!("The recompiled contract partially matches the deployed version");
             }
-            "false" => println!("Contract source code is not verified"),
+            "false" => sh_println!("Contract source code is not verified"),
             s => eyre::bail!("Unknown status from sourcify. Status: {s:?}"),
         }
         Ok(())

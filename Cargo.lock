@@ -3428,6 +3428,7 @@ dependencies = [
  "derive_more 1.0.0",
  "eyre",
  "forge-fmt",
+ "foundry-common",
  "foundry-compilers",
  "foundry-config",
  "itertools 0.13.0",
@@ -3902,7 +3903,6 @@ dependencies = [
  "toml_edit",
  "tracing",
  "walkdir",
- "yansi",
 ]
 
 [[package]]

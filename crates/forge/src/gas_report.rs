@@ -10,7 +10,6 @@ use foundry_common::{calc, TestFunctionExt};
 use foundry_evm::traces::CallKind;
 use serde::{Deserialize, Serialize};
 use std::{collections::BTreeMap, fmt::Display};
-use yansi::Paint;
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum GasReportKind {
@@ -64,10 +63,8 @@ impl GasReport {
                 // list. This is addressed this way because getting a report you don't expect is
                 // preferable than not getting one you expect. A warning is printed to stderr
                 // indicating the "double listing".
-                eprintln!(
-                    "{}: {} is listed in both 'gas_reports' and 'gas_reports_ignore'.",
-                    "warning".yellow().bold(),
-                    contract_name
+                sh_warn!(
+                    "{contract_name} is listed in both 'gas_reports' and 'gas_reports_ignore'"
                 );
             }
             return contains_anyway;
